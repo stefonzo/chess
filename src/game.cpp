@@ -75,7 +75,7 @@ void game::init_game(void) {
     // initialize rectangle for displaying version info
     display_version_info.x = 10;
     display_version_info.y = WINDOW_HEIGHT - 30;
-    display_version_info.w = VERSION.length() * CHAR_WIDTH;
+    display_version_info.w = VERSION.length() * MAIN_MENU_CHAR_WIDTH;
     display_version_info.h = 25;
 
     init_main_menu();
@@ -157,7 +157,7 @@ void game::init_main_menu(void) {
     for (unsigned i = 0; i < main_menu->get_items(); i++) {
         main_menu->item_boundaries[i].x = (WINDOW_WIDTH / 2) - 45;
         main_menu->item_boundaries[i].y = (i * 45) + 300;
-        main_menu->item_boundaries[i].w = main_menu->menu_items[i].length() * CHAR_WIDTH;
+        main_menu->item_boundaries[i].w = main_menu->menu_items[i].length() * MAIN_MENU_CHAR_WIDTH;
         main_menu->item_boundaries[i].h = 30;
     }
 
@@ -185,7 +185,7 @@ void game::init_settings_menu(void) {
     */
 
    settings_menu = std::make_unique<menu>(1); // for now there aren't any settings until I begin programming the game...
-   settings_menu->menu_items[0] = "Back";
+   settings_menu->menu_items[0] = "Main Menu";
    settings_menu->item_settings[0] = ITEM_SETTINGS::MENU;
    
    // initialize textures for settings menu
@@ -219,7 +219,7 @@ void game::init_settings_menu(void) {
    for (unsigned i = 0; i < settings_menu->get_items(); i++) {
         settings_menu->item_boundaries[i].x = (WINDOW_WIDTH / 2) - 45;
         settings_menu->item_boundaries[i].y = (i * 45) + 300;
-        settings_menu->item_boundaries[i].w = main_menu->menu_items[i].length() * CHAR_WIDTH;
+        settings_menu->item_boundaries[i].w = main_menu->menu_items[i].length() * SETTINGS_MENU_CHAR_WIDTH;
         settings_menu->item_boundaries[i].h = 30;
    }
 
@@ -274,7 +274,6 @@ void game::mouse_event(SDL_Event *e) {
         if (e->type == SDL_MOUSEBUTTONDOWN) {
             SDL_GetMouseState(&mouse_x, &mouse_y);
             mouse_clicked = true;
-            printf("x: %d y: %d\n", mouse_x, mouse_y);
         } else {
             mouse_clicked = false;
         }
@@ -282,7 +281,6 @@ void game::mouse_event(SDL_Event *e) {
         // mouse is moved
         if (e->type == SDL_MOUSEMOTION) {
             SDL_GetMouseState(&mouse_x, &mouse_y);
-            printf("x: %d y: %d\n", mouse_x, mouse_y);
         }
     }
 }

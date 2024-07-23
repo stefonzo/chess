@@ -10,7 +10,8 @@
 
 #define WINDOW_WIDTH 1200
 #define WINDOW_HEIGHT 800
-#define CHAR_WIDTH 15
+#define MAIN_MENU_CHAR_WIDTH 15
+#define SETTINGS_MENU_CHAR_WIDTH 30
 
 
 enum class GAME_STATE {
