@@ -45,7 +45,7 @@ bool menu::check_button(int mouse_x, int mouse_y, SDL_Rect *button) {
 */
 
 void game::init_game(void) {
-    printf("Intializing game...\n");
+    printf("Intializing chess...\n");
 
     // initialize text color
     main_color.r = 0;
@@ -399,8 +399,6 @@ void game::loop(void) {
             render_settings_menu();
         }
 
-        printf("Game state: %i\n", game_state);
-        
         // update screen
         SDL_RenderPresent(game_renderer);
     }
