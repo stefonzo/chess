@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <vector>
 #include <memory>
+#include <unordered_map>
 
 #define WINDOW_WIDTH 1200
 #define WINDOW_HEIGHT 800
@@ -15,6 +16,7 @@
 
 
 enum class GAME_STATE {
+    SPLASH_SCREEN,
     MENU,
     GAME,
     SETTINGS,
@@ -25,21 +27,37 @@ enum class ITEM_SETTINGS {
     MENU
 };
 
+
+class texture_manager {
+    private:
+        SDL_Surface *texture_surface; // temporary surface used in texture generation
+        std::unordered_map<std::string, SDL_Texture*> textures; // hashmap with string keys that stores textures
+        std::vector<std::string> texture_names; // this holds the textures string keys but I need to get rid of this and figure out a different system for managing the hash keys
+        void cleanup_textures(void);
+    public:
+        std::unordered_map<std::string, SDL_Rect> texture_quads; // this is public so I can change the x y coordinates for texture rendering
+        texture_manager();
+        ~texture_manager();
+        void add_texture(std::string path, std::string texture_name, SDL_Renderer *r);
+        void remove_texture(std::string texture_name);
+        SDL_Texture* get_texture(std::string texture_name); // this method will be used in rendering to the game window
+};
+
 // TODO: implement a better menu system...
 
 class menu {
         unsigned items;
     public:
-        std::vector<std::string> menu_items;
-        std::vector<SDL_Rect> item_boundaries;
-        std::vector<SDL_Texture*> item_textures;
-        std::vector<SDL_Texture*> selected_item_textures;
-        std::vector<bool> item_checked;
-        std::vector<GAME_STATE> item_game_state;
-        std::vector<ITEM_SETTINGS> item_settings;
-        menu(unsigned n_items);
+        std::vector<std::string> menu_items; // holds all the button text
+        std::vector<SDL_Rect> item_boundaries; // boundaries for the menu buttons/items
+        std::vector<SDL_Texture*> item_textures; // holds ttf textures for the menu items
+        std::vector<SDL_Texture*> selected_item_textures; // ttf textures of item text in a different color for highlight selection
+        std::vector<bool> item_checked; // is the mouse cursor over a button?
+        std::vector<GAME_STATE> item_game_state; // buttons/items are associated with different game states
+        std::vector<ITEM_SETTINGS> item_settings; // for buttons/items in the settings menu
+        menu(unsigned n_items); // n_items is how many buttons/items are in the menu
         void cleanup_menu(void);
-        unsigned get_items(void) { return items; }
+        unsigned get_items(void) { return items; } // used for loops
         bool check_button(int mouse_x, int mouse_y, SDL_Rect *button);
 };
 
@@ -68,8 +86,15 @@ class game {
         // keyboard data
         char key_press;
 
+        // texture data
+        std::unique_ptr<texture_manager> game_texture_manager;
+
+        // splashscreen data
+        double splashscreen_time;
+
         // init methods
         void init_sdl(void);
+        void init_splashscreen(void);
         void init_main_menu(void);
         void init_settings_menu(void);
         void init_game(void);
@@ -80,6 +105,9 @@ class game {
         // input functions
         void mouse_event(SDL_Event *e);
         void keyboard_event(SDL_Event *e);
+
+        void update_splash_screen(double dt);
+        void render_splash_screen(void);
 
         void update_main_menu(void);
         void render_main_menu(void);

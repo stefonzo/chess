@@ -20,5 +20,3 @@ class chess_piece {
         piece_color get_piece_color(void);
         piece_type get_piece_type(void);
 };
-
-static void render_chess_piece(SDL_Renderer *r, chess_piece p);

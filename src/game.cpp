@@ -39,10 +39,68 @@ bool menu::check_button(int mouse_x, int mouse_y, SDL_Rect *button) {
     return false;
 }
 
+/*
+    Texture Manager Code
+*/
+
+texture_manager::texture_manager() {
+    textures.clear(); // redundant but I want my constructor to do something for now :p
+    texture_quads.clear();
+}
+
+void texture_manager::cleanup_textures(void) {
+    for (auto it = textures.begin(); it != textures.end(); it++) {
+        SDL_DestroyTexture(it->second);
+        it->second = NULL;
+    }
+}
+
+texture_manager::~texture_manager() {
+    cleanup_textures();
+}
+
+void texture_manager::add_texture(std::string path, std::string texture_name, SDL_Renderer *r) {
+    texture_names.push_back(texture_name);
+    // create surface from png
+    SDL_Surface *loaded_surface = IMG_Load(path.c_str());
+    if (loaded_surface == NULL) {
+        printf("Unable to load image %s! SDL_image Error: %s\n", path.c_str(), IMG_GetError());
+    }
+
+    // create texture from surface
+    printf("creating texture\n");
+    textures.insert({texture_name, SDL_CreateTextureFromSurface(r, loaded_surface)});
+    if (textures[texture_name] == NULL) {
+        printf("Unable to create texture from %s! SDL Error: %s\n", path.c_str(), SDL_GetError());
+    } 
+
+    SDL_Rect temp_rect;
+    temp_rect.w = loaded_surface->w;
+    temp_rect.h = loaded_surface->h;
+    texture_quads.insert({texture_name, temp_rect});
+    
+
+    // get rid of loaded surface
+    SDL_FreeSurface(loaded_surface);
+}
+
+void texture_manager::remove_texture(std::string texture_name) {
+    // todo use queue instead of vector to store strings of texture names
+    SDL_DestroyTexture(textures[texture_name]);
+    textures[texture_name] = NULL;
+    textures.erase(texture_name);
+    texture_quads.erase(texture_name);
+}
+
+SDL_Texture* texture_manager::get_texture(std::string texture_name) {
+    return textures[texture_name];
+}
 
 /*
     Game Code
 */
+
+// Initializer code
 
 void game::init_game(void) {
     printf("Intializing chess...\n");
@@ -78,6 +136,9 @@ void game::init_game(void) {
     display_version_info.w = VERSION.length() * MAIN_MENU_CHAR_WIDTH;
     display_version_info.h = 25;
 
+    game_texture_manager = std::make_unique<texture_manager>();
+
+    init_splashscreen();
     init_main_menu();
     init_settings_menu();
 }
@@ -121,10 +182,16 @@ void game::init_sdl(void) {
     }
 }
 
-// menu initialization
+void game::init_splashscreen(void) {
+    splashscreen_time = 0.0;
+    game_texture_manager->add_texture("splashscreen.png", "splashscreen_texture", game_renderer);
+    game_texture_manager->texture_quads["splashscreen_texture"].x = 10;
+    game_texture_manager->texture_quads["splashscreen_texture"].y = 10;
+}
+
 void game::init_main_menu(void) {
     mouse_clicked = false;
-    game_state = GAME_STATE::MENU;
+    game_state = GAME_STATE::SPLASH_SCREEN; // testing splashscreen atm
     main_menu = std::make_unique<menu>(3);
 
     // initialize main menu text (crash occurs here)
@@ -136,9 +203,6 @@ void game::init_main_menu(void) {
     main_menu->item_game_state[0] = GAME_STATE::GAME;
     main_menu->item_game_state[1] = GAME_STATE::SETTINGS;
     main_menu->item_game_state[2] = GAME_STATE::QUIT;
-    /*
-        Main Menu Initialization   
-    */
 
     // initialize main menu textures
     for (unsigned i = 0; i < main_menu->get_items(); i++) {
@@ -180,9 +244,6 @@ void game::init_main_menu(void) {
 }
 
 void game::init_settings_menu(void) {
-    /*
-        Settings Menu Initialization
-    */
 
    settings_menu = std::make_unique<menu>(1); // for now there aren't any settings until I begin programming the game...
    settings_menu->menu_items[0] = "Main Menu";
@@ -267,6 +328,8 @@ game::~game() {
     cleanup_sdl();
 }
 
+// game input
+
 void game::mouse_event(SDL_Event *e) {
     // mouse event happened
     if( e->type == SDL_MOUSEMOTION || e->type == SDL_MOUSEBUTTONDOWN || e->type == SDL_MOUSEBUTTONUP ) {
@@ -295,6 +358,8 @@ void game::keyboard_event(SDL_Event *e) {
     }
 }
 
+// update and render code for all game elements
+
 void game::update_main_menu(void) {
 
     // check if an item has been selected
@@ -308,6 +373,19 @@ void game::update_main_menu(void) {
             main_menu->item_checked[i] = false;
         }
     }
+}
+
+void game::update_splash_screen(double dt) {
+
+}
+
+
+void game::render_splash_screen(void) {
+    SDL_SetRenderDrawColor(game_renderer, 0, 220, 50, 255);
+    SDL_RenderClear(game_renderer);
+
+    // render_texture(splashscreen_texture)
+    SDL_RenderCopy(game_renderer, game_texture_manager->get_texture("splashscreen_texture"), NULL, &game_texture_manager->texture_quads["splashscreen_texture"]);
 }
 
 void game::render_main_menu(void) {
@@ -366,6 +444,8 @@ void game::render_game(void) {
     SDL_RenderCopy(game_renderer, version_info, NULL, &display_version_info);
 }
 
+// main game loop
+
 void game::loop(void) {
     bool quit = false;
     SDL_Event e;
@@ -377,6 +457,11 @@ void game::loop(void) {
             }
             mouse_event(&e);
             keyboard_event(&e);
+        }
+
+        if (game_state == GAME_STATE::SPLASH_SCREEN) {
+            update_splash_screen(splashscreen_time);
+            render_splash_screen();
         }
 
         if (game_state == GAME_STATE::MENU) {
