@@ -20,6 +20,13 @@
 #define SPLASHSCREEN_FONT_WIDTH 20
 #define SPLASHSCREEN_FONT_HEIGHT 55
 #define SPLASHSCREEN_X 250
+#define BOARD_WIDTH 512
+#define BOARD_HEIGHT 512
+#define SQUARE_WIDTH 64
+#define SQUARE_HEIGHT 64
+#define NUMBER_SQUARES 64
+#define BOARD_X 350 + 1
+#define BOARD_Y 100 + 1
 
 enum class GAME_STATE {
     SPLASH_SCREEN,
@@ -36,7 +43,6 @@ enum class ITEM_SETTINGS {
 /*  TODO
         -begin working on implementing chess data/logic 
         -get textures for chess pieces rendering into game
-        -implement animation with interpolation and or matrices for animation (ie: rotating, shrinking, stretching textures)
 */
 
 class timer {
@@ -105,6 +111,7 @@ class game {
         unsigned game_window_width, game_window_height;
         std::string game_window_title;
         SDL_Texture *version_info;
+        SDL_Color background_color;
 
         // mouse data
         int mouse_x, mouse_y;
@@ -123,12 +130,17 @@ class game {
         SDL_Rect splashscreen_text_quad;
         std::string SPLASHSCREEN_TEXT;
 
+        // board data
+        SDL_Rect board_boundary;
+        SDL_Rect board_rects[NUMBER_SQUARES];
+
         // init methods
         void init_sdl(void);
         void init_splashscreen(void);
         void init_main_menu(void);
         void init_settings_menu(void);
         void init_game(void);
+        void init_board(void);
 
         void cleanup_sdl(void);
         void cleanup_game(void);
@@ -149,6 +161,7 @@ class game {
         // main game loop 
         void update_game(void);
         void render_game(void);
+        void render_board(void);
 
         GAME_STATE game_state;
 

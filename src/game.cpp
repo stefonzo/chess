@@ -156,16 +156,12 @@ void game::init_game(void) {
     game_state = GAME_STATE::SPLASH_SCREEN; // testing splashscreen atm
 
     // initialize text color
-    main_color.r = 0;
-    main_color.g = 0;
-    main_color.b = 0;
-    main_color.a = 255;
+    main_color = {0, 0, 0, 255};
 
     // initialize text select color
-    selected_color.r = 255;
-    selected_color.g = 255;
-    selected_color.b = 255;
-    selected_color.a = 255;
+    selected_color = {255, 255, 255, 255};
+
+    background_color = {0, 220, 50, 255};
     
     VERSION = "Version 0.02";
 
@@ -191,6 +187,16 @@ void game::init_game(void) {
     init_main_menu();
     init_settings_menu();
     init_splashscreen();
+    init_board();
+}
+
+void game::init_board(void) {
+    // initialize boundary for chess board
+    board_boundary = {350, 100, BOARD_WIDTH + 2, BOARD_HEIGHT + 2}; 
+    game_texture_manager->add_texture("chess_board.png", "chess_board", game_renderer);
+    // initialize chess board quad rectangles
+    game_texture_manager->texture_quads["chess_board"].x = BOARD_X;
+    game_texture_manager->texture_quads["chess_board"].y = BOARD_Y;
 }
 
 void game::init_sdl(void) {
@@ -361,7 +367,9 @@ void game::init_settings_menu(void) {
    }
 }
 
-// cleanup textures and other resources used in game
+/*
+    Cleanup Code
+*/
 void game::cleanup_game(void) {
     // cleaning up some ttf text
     if (version_info != NULL) {
@@ -451,41 +459,6 @@ void game::update_main_menu(void) {
     }
 }
 
-void game::update_splash_screen(double dt) {
-    if (((int)dt) > SPLASHSCREEN_TIME) { // how long splash screen is displayed for
-        game_state = GAME_STATE::MENU;
-        printf("Splash screen ended at %G ms\n", dt);
-        splashscreen_timer->pause_timer();
-        splashscreen_timer->reset_timer(); // might be redundant, could remove?
-    }
-}
-
-/*
-    Render Code
-*/
-
-void game::render_splash_screen(void) {
-    SDL_SetRenderDrawColor(game_renderer, 0, 220, 50, 255);
-    SDL_RenderClear(game_renderer);
-
-    SDL_RenderCopy(game_renderer, game_texture_manager->get_texture("splashscreen_texture"), NULL, &game_texture_manager->texture_quads["splashscreen_texture"]);
-    SDL_RenderCopy(game_renderer, splashscreen_texture, NULL, &splashscreen_text_quad);
-}
-
-void game::render_main_menu(void) {
-    SDL_SetRenderDrawColor(game_renderer, 0, 220, 50, 255);
-    SDL_RenderClear(game_renderer);
-    SDL_RenderCopy(game_renderer, version_info, NULL, &display_version_info);
-
-    for (unsigned i = 0; i < main_menu->get_items(); i++) {
-        if (main_menu->item_checked[i] == false) {
-            SDL_RenderCopy(game_renderer, main_menu->item_textures[i], NULL, &main_menu->item_boundaries[i]);
-        } else if (main_menu->item_checked[i] == true) {
-            SDL_RenderCopy(game_renderer, main_menu->selected_item_textures[i], NULL, &main_menu->item_boundaries[i]);
-        }
-    }
-}
-
 void game::update_settings_menu(void) {
     for (unsigned i = 0; i < settings_menu->get_items(); i++) {
         // mouse is over an item
@@ -504,8 +477,47 @@ void game::update_settings_menu(void) {
     }
 }
 
+void game::update_splash_screen(double dt) {
+    if (((int)dt) > SPLASHSCREEN_TIME) { // how long splash screen is displayed for
+        game_state = GAME_STATE::MENU;
+        printf("Splash screen ended at %G ms\n", dt);
+        splashscreen_timer->pause_timer();
+        splashscreen_timer->reset_timer(); // might be redundant, could remove?
+    }
+}
+
+void game::update_game(void) {
+
+}
+
+/*
+    Render Code
+*/
+
+void game::render_splash_screen(void) {
+    SDL_SetRenderDrawColor(game_renderer, background_color.r, background_color.g, background_color.b, background_color.a);
+    SDL_RenderClear(game_renderer);
+
+    SDL_RenderCopy(game_renderer, game_texture_manager->get_texture("splashscreen_texture"), NULL, &game_texture_manager->texture_quads["splashscreen_texture"]);
+    SDL_RenderCopy(game_renderer, splashscreen_texture, NULL, &splashscreen_text_quad);
+}
+
+void game::render_main_menu(void) {
+    SDL_SetRenderDrawColor(game_renderer, background_color.r, background_color.g, background_color.b, background_color.a);
+    SDL_RenderClear(game_renderer);
+    SDL_RenderCopy(game_renderer, version_info, NULL, &display_version_info);
+
+    for (unsigned i = 0; i < main_menu->get_items(); i++) {
+        if (main_menu->item_checked[i] == false) {
+            SDL_RenderCopy(game_renderer, main_menu->item_textures[i], NULL, &main_menu->item_boundaries[i]);
+        } else if (main_menu->item_checked[i] == true) {
+            SDL_RenderCopy(game_renderer, main_menu->selected_item_textures[i], NULL, &main_menu->item_boundaries[i]);
+        }
+    }
+}
+
 void game::render_settings_menu(void) {
-    SDL_SetRenderDrawColor(game_renderer, 0, 220, 50, 255);
+    SDL_SetRenderDrawColor(game_renderer, background_color.r, background_color.g, background_color.b, background_color.a);
     SDL_RenderClear(game_renderer);
     SDL_RenderCopy(game_renderer, version_info, NULL, &display_version_info);
 
@@ -518,14 +530,20 @@ void game::render_settings_menu(void) {
     }
 }
 
-void game::update_game(void) {
-
-}
-
 void game::render_game(void) {
-    SDL_SetRenderDrawColor(game_renderer, 0, 220, 50, 255);
+    // set background color of window
+    SDL_SetRenderDrawColor(game_renderer, background_color.r, background_color.g, background_color.b, background_color.a);
     SDL_RenderClear(game_renderer);
+
+    // render version info at bottom of screen
     SDL_RenderCopy(game_renderer, version_info, NULL, &display_version_info);
+
+    // render board boundary
+    SDL_SetRenderDrawColor(game_renderer, 0, 0, 0, 255);
+    SDL_RenderDrawRect(game_renderer, &board_boundary);
+
+    // render chess board
+    SDL_RenderCopy(game_renderer, game_texture_manager->get_texture("chess_board"), NULL, &game_texture_manager->texture_quads["chess_board"]);
 }
 
 // main game loop
