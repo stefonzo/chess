@@ -15,9 +15,11 @@
 #define WINDOW_WIDTH 1200
 #define WINDOW_HEIGHT 800
 #define MAIN_MENU_CHAR_WIDTH 15
-#define SETTINGS_MENU_CHAR_WIDTH 30
+#define SETTINGS_MENU_CHAR_WIDTH 25
 #define SPLASHSCREEN_TIME 5000.0f
-
+#define SPLASHSCREEN_FONT_WIDTH 20
+#define SPLASHSCREEN_FONT_HEIGHT 55
+#define SPLASHSCREEN_X 250
 
 enum class GAME_STATE {
     SPLASH_SCREEN,
@@ -32,18 +34,15 @@ enum class ITEM_SETTINGS {
 };
 
 /*  TODO
-        -finish timer class
-        -use timer instance in game class for fps limiting
-        -use timer for game splashscreen
-        -begin working on implementing chess data/logic
-        -
-        -get textures for chess pieces rendering
+        -begin working on implementing chess data/logic 
+        -get textures for chess pieces rendering into game
+        -implement animation with interpolation and or matrices for animation (ie: rotating, shrinking, stretching textures)
 */
 
 class timer {
     private:
-        bool paused;
-        std::chrono::time_point<std::chrono::steady_clock> start_time, paused_time;
+        bool paused; // is the timer running?
+        std::chrono::time_point<std::chrono::steady_clock> start_time, paused_time; // time_point type represents a point in time obtained from a steady_clock, these values are used to calculate durations (alongside paused duration)
         std::chrono::duration<double> paused_duration;
     public:
         timer();
@@ -72,6 +71,7 @@ class texture_manager {
 class menu {
     private:
         unsigned items;
+        void cleanup_menu(void);
     public:
         std::vector<std::string> menu_items; // holds all the button text
         std::vector<SDL_Rect> item_boundaries; // boundaries for the menu buttons/items
@@ -81,7 +81,7 @@ class menu {
         std::vector<GAME_STATE> item_game_state; // buttons/items are associated with different game states
         std::vector<ITEM_SETTINGS> item_settings; // for buttons/items in the settings menu
         menu(unsigned n_items); // n_items is how many buttons/items are in the menu
-        void cleanup_menu(void);
+        ~menu(); 
         unsigned get_items(void) { return items; } // used for loops
         bool check_button(int mouse_x, int mouse_y, SDL_Rect *button);
 };
@@ -98,13 +98,13 @@ class game {
         TTF_Font *game_font;
         SDL_Color main_color, selected_color;
         SDL_Surface *font_surface;
-        SDL_Texture *version_info;
         SDL_Rect display_version_info;
         std::string VERSION;
 
         // window data
         unsigned game_window_width, game_window_height;
         std::string game_window_title;
+        SDL_Texture *version_info;
 
         // mouse data
         int mouse_x, mouse_y;
@@ -119,6 +119,9 @@ class game {
         // splashscreen data
         double splashscreen_time;
         std::unique_ptr<timer> splashscreen_timer;
+        SDL_Texture *splashscreen_texture;
+        SDL_Rect splashscreen_text_quad;
+        std::string SPLASHSCREEN_TEXT;
 
         // init methods
         void init_sdl(void);

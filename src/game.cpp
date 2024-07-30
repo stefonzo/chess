@@ -57,6 +57,10 @@ menu::menu(unsigned n_items) {
     item_settings.resize(items);
 }
 
+menu::~menu() {
+    cleanup_menu();
+}
+
 void menu::cleanup_menu(void) {
     for (unsigned i = 0; i < items; i++) {
         if (item_textures[i] != NULL) {
@@ -142,7 +146,9 @@ SDL_Texture* texture_manager::get_texture(std::string texture_name) {
     Game Code
 */
 
-// Initializer code
+/*
+    Init Code
+*/
 
 void game::init_game(void) {
     printf("Intializing chess...\n");
@@ -161,7 +167,7 @@ void game::init_game(void) {
     selected_color.b = 255;
     selected_color.a = 255;
     
-    VERSION = "Version 0.01";
+    VERSION = "Version 0.02";
 
     // initialize version info texture
     font_surface = TTF_RenderText_Solid(game_font, VERSION.c_str(), main_color);
@@ -228,9 +234,27 @@ void game::init_sdl(void) {
 
 void game::init_splashscreen(void) {
     game_texture_manager->add_texture("splashscreen.png", "splashscreen_texture", game_renderer);
-    game_texture_manager->texture_quads["splashscreen_texture"].x = 10;
-    game_texture_manager->texture_quads["splashscreen_texture"].y = 10;
+    game_texture_manager->texture_quads["splashscreen_texture"].x = SPLASHSCREEN_X;
+    game_texture_manager->texture_quads["splashscreen_texture"].y = 40;
 
+    // generate texture for text that will be displayed in splash screen
+    SPLASHSCREEN_TEXT = "Welcome to the game of Chess!";
+    splashscreen_text_quad.x = SPLASHSCREEN_X + 30;
+    splashscreen_text_quad.y = WINDOW_HEIGHT - 80;
+    splashscreen_text_quad.h = SPLASHSCREEN_FONT_WIDTH;
+    splashscreen_text_quad.w = SPLASHSCREEN_TEXT.length() * SPLASHSCREEN_FONT_WIDTH;
+
+    font_surface = TTF_RenderText_Solid(game_font, SPLASHSCREEN_TEXT.c_str(), main_color);
+    if (font_surface == NULL) {
+            printf("Unable to render text surface! SDL_ttf Error: %s\n", TTF_GetError());
+    }
+    splashscreen_texture = SDL_CreateTextureFromSurface(game_renderer, font_surface);
+    if (splashscreen_texture == NULL) {
+        printf("Unable to create texture from rendered text! SDL_Error: %s\n", SDL_GetError());
+    }
+    SDL_FreeSurface(font_surface);
+
+    // init splashscreen_timer
     splashscreen_timer = std::make_unique<timer>();
     splashscreen_timer->reset_timer();
     splashscreen_timer->start_timer();
@@ -339,12 +363,15 @@ void game::init_settings_menu(void) {
 
 // cleanup textures and other resources used in game
 void game::cleanup_game(void) {
-    main_menu->cleanup_menu();
-    settings_menu->cleanup_menu();
-
+    // cleaning up some ttf text
     if (version_info != NULL) {
         SDL_DestroyTexture(version_info);
         version_info = NULL;
+    }
+
+    if (splashscreen_texture != NULL) {
+        SDL_DestroyTexture(splashscreen_texture);
+        splashscreen_texture = NULL;
     }
 }
 
@@ -441,8 +468,8 @@ void game::render_splash_screen(void) {
     SDL_SetRenderDrawColor(game_renderer, 0, 220, 50, 255);
     SDL_RenderClear(game_renderer);
 
-    // render_texture(splashscreen_texture)
     SDL_RenderCopy(game_renderer, game_texture_manager->get_texture("splashscreen_texture"), NULL, &game_texture_manager->texture_quads["splashscreen_texture"]);
+    SDL_RenderCopy(game_renderer, splashscreen_texture, NULL, &splashscreen_text_quad);
 }
 
 void game::render_main_menu(void) {
@@ -507,9 +534,9 @@ void game::loop(void) {
     bool quit = false;
     SDL_Event e;
 
-    while (!quit) {
-        frame_start = SDL_GetTicks64();
-        while (SDL_PollEvent(&e) != 0) {
+    while (!quit) { // main app loop (everything is handled in here...)
+        frame_start = SDL_GetTicks64(); // used in fps limiting
+        while (SDL_PollEvent(&e) != 0) { // input loop
             if ((e.type == SDL_QUIT) | (game_state == GAME_STATE::QUIT)) {
                 quit = true;
             }
