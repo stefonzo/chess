@@ -193,7 +193,7 @@ void game::init_game(void) {
 void game::init_board(void) {
     // initialize boundary for chess board
     board_boundary = {350, 100, BOARD_WIDTH + 2, BOARD_HEIGHT + 2}; 
-    game_texture_manager->add_texture("chess_board.png", "chess_board", game_renderer);
+    game_texture_manager->add_texture("textures/chess_board.png", "chess_board", game_renderer);
     // initialize chess board quad rectangles
     game_texture_manager->texture_quads["chess_board"].x = BOARD_X;
     game_texture_manager->texture_quads["chess_board"].y = BOARD_Y;
@@ -239,7 +239,7 @@ void game::init_sdl(void) {
 }
 
 void game::init_splashscreen(void) {
-    game_texture_manager->add_texture("splashscreen.png", "splashscreen_texture", game_renderer);
+    game_texture_manager->add_texture("textures/splashscreen.png", "splashscreen_texture", game_renderer);
     game_texture_manager->texture_quads["splashscreen_texture"].x = SPLASHSCREEN_X;
     game_texture_manager->texture_quads["splashscreen_texture"].y = 40;
 
