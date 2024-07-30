@@ -8,11 +8,15 @@
 #include <vector>
 #include <memory>
 #include <unordered_map>
+#include <chrono>
 
+#define FPS 60
+#define FRAME_DELAY 1000 / FPS
 #define WINDOW_WIDTH 1200
 #define WINDOW_HEIGHT 800
 #define MAIN_MENU_CHAR_WIDTH 15
 #define SETTINGS_MENU_CHAR_WIDTH 30
+#define SPLASHSCREEN_TIME 5000.0f
 
 
 enum class GAME_STATE {
@@ -27,6 +31,28 @@ enum class ITEM_SETTINGS {
     MENU
 };
 
+/*  TODO
+        -finish timer class
+        -use timer instance in game class for fps limiting
+        -use timer for game splashscreen
+        -begin working on implementing chess data/logic
+        -
+        -get textures for chess pieces rendering
+*/
+
+class timer {
+    private:
+        bool paused;
+        std::chrono::time_point<std::chrono::steady_clock> start_time, paused_time;
+        std::chrono::duration<double> paused_duration;
+    public:
+        timer();
+        ~timer();
+        double get_time(void);
+        void reset_timer(void);
+        void start_timer(void);
+        void pause_timer(void);
+};
 
 class texture_manager {
     private:
@@ -43,9 +69,8 @@ class texture_manager {
         SDL_Texture* get_texture(std::string texture_name); // this method will be used in rendering to the game window
 };
 
-// TODO: implement a better menu system...
-
 class menu {
+    private:
         unsigned items;
     public:
         std::vector<std::string> menu_items; // holds all the button text
@@ -63,6 +88,8 @@ class menu {
 
 class game {
     private:
+        // frame data
+        int frame_start, frame_time;
         // SDL data
         SDL_Window *game_window = NULL;
         SDL_Renderer *game_renderer = NULL;
@@ -91,6 +118,7 @@ class game {
 
         // splashscreen data
         double splashscreen_time;
+        std::unique_ptr<timer> splashscreen_timer;
 
         // init methods
         void init_sdl(void);

@@ -1,6 +1,48 @@
 #include "game.h"
 
 /*
+    Timer Code
+*/
+
+timer::timer() {
+    paused = false;
+    paused_duration = std::chrono::duration<double>(0);
+}
+
+timer::~timer() {} // the destructor is currently unused...
+
+void timer::start_timer(void) {
+    if (paused == true) {
+        std::chrono::time_point<std::chrono::steady_clock> resumed_time = std::chrono::steady_clock::now();
+        paused_duration += resumed_time - paused_time;
+        paused = false;
+    } else {
+        start_time = std::chrono::steady_clock::now();
+        paused_duration = std::chrono::duration<double>::zero();
+    }
+}
+
+void timer::pause_timer(void) {
+    paused_time = std::chrono::steady_clock::now();
+    paused = true;
+}
+
+double timer::get_time(void) {
+    if (paused == true) {
+        return paused_duration.count();
+    } else {
+        std::chrono::time_point<std::chrono::steady_clock> current_time = std::chrono::steady_clock::now();
+        return (std::chrono::duration_cast<std::chrono::milliseconds>(current_time - start_time) + paused_duration).count();
+    }
+}
+
+void timer::reset_timer(void) {
+    start_time = std::chrono::steady_clock::now();
+    paused_duration = std::chrono::duration<double>::zero();
+    paused = false;
+}
+
+/*
     Menu Code
 */
 
@@ -105,6 +147,8 @@ SDL_Texture* texture_manager::get_texture(std::string texture_name) {
 void game::init_game(void) {
     printf("Intializing chess...\n");
 
+    game_state = GAME_STATE::SPLASH_SCREEN; // testing splashscreen atm
+
     // initialize text color
     main_color.r = 0;
     main_color.g = 0;
@@ -138,9 +182,9 @@ void game::init_game(void) {
 
     game_texture_manager = std::make_unique<texture_manager>();
 
-    init_splashscreen();
     init_main_menu();
     init_settings_menu();
+    init_splashscreen();
 }
 
 void game::init_sdl(void) {
@@ -183,15 +227,18 @@ void game::init_sdl(void) {
 }
 
 void game::init_splashscreen(void) {
-    splashscreen_time = 0.0;
     game_texture_manager->add_texture("splashscreen.png", "splashscreen_texture", game_renderer);
     game_texture_manager->texture_quads["splashscreen_texture"].x = 10;
     game_texture_manager->texture_quads["splashscreen_texture"].y = 10;
+
+    splashscreen_timer = std::make_unique<timer>();
+    splashscreen_timer->reset_timer();
+    splashscreen_timer->start_timer();
+    printf("First time is: %G ms\n", splashscreen_timer->get_time());
 }
 
 void game::init_main_menu(void) {
     mouse_clicked = false;
-    game_state = GAME_STATE::SPLASH_SCREEN; // testing splashscreen atm
     main_menu = std::make_unique<menu>(3);
 
     // initialize main menu text (crash occurs here)
@@ -358,7 +405,9 @@ void game::keyboard_event(SDL_Event *e) {
     }
 }
 
-// update and render code for all game elements
+/*
+    Update Code
+*/
 
 void game::update_main_menu(void) {
 
@@ -376,9 +425,17 @@ void game::update_main_menu(void) {
 }
 
 void game::update_splash_screen(double dt) {
-
+    if (((int)dt) > SPLASHSCREEN_TIME) { // how long splash screen is displayed for
+        game_state = GAME_STATE::MENU;
+        printf("Splash screen ended at %G ms\n", dt);
+        splashscreen_timer->pause_timer();
+        splashscreen_timer->reset_timer(); // might be redundant, could remove?
+    }
 }
 
+/*
+    Render Code
+*/
 
 void game::render_splash_screen(void) {
     SDL_SetRenderDrawColor(game_renderer, 0, 220, 50, 255);
@@ -451,6 +508,7 @@ void game::loop(void) {
     SDL_Event e;
 
     while (!quit) {
+        frame_start = SDL_GetTicks64();
         while (SDL_PollEvent(&e) != 0) {
             if ((e.type == SDL_QUIT) | (game_state == GAME_STATE::QUIT)) {
                 quit = true;
@@ -460,7 +518,7 @@ void game::loop(void) {
         }
 
         if (game_state == GAME_STATE::SPLASH_SCREEN) {
-            update_splash_screen(splashscreen_time);
+            update_splash_screen(splashscreen_timer->get_time());
             render_splash_screen();
         }
 
@@ -484,5 +542,12 @@ void game::loop(void) {
 
         // update screen
         SDL_RenderPresent(game_renderer);
+
+        // fps limiting
+        frame_time = SDL_GetTicks64() - frame_start;
+
+        if (FRAME_DELAY > frame_time) {
+            SDL_Delay(FRAME_DELAY - frame_time);
+        }
     }
 }
