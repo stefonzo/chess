@@ -1,10 +1,10 @@
 #include <stdio.h>
 #include "game.h"
 
-#define APP_NAME "Chess v0.02"
+#define APP_NAME "Chess v0.03"
 
 int main() {
-    printf("Chess v0.02\n");
+    printf("Chess v0.03\n");
     game chess(WINDOW_WIDTH, WINDOW_HEIGHT, APP_NAME);
     chess.loop();
     return 0;

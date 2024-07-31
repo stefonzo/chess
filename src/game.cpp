@@ -114,7 +114,7 @@ void texture_manager::add_texture(std::string path, std::string texture_name, SD
     }
 
     // create texture from surface
-    printf("creating texture\n");
+    printf("Creating texture!\n");
     textures.insert({texture_name, SDL_CreateTextureFromSurface(r, loaded_surface)});
     if (textures[texture_name] == NULL) {
         printf("Unable to create texture from %s! SDL Error: %s\n", path.c_str(), SDL_GetError());
@@ -163,7 +163,7 @@ void game::init_game(void) {
 
     background_color = {0, 220, 50, 255};
     
-    VERSION = "Version 0.02";
+    VERSION = "Version 0.03";
 
     // initialize version info texture
     font_surface = TTF_RenderText_Solid(game_font, VERSION.c_str(), main_color);
@@ -192,11 +192,40 @@ void game::init_game(void) {
 
 void game::init_board(void) {
     // initialize boundary for chess board
-    board_boundary = {350, 100, BOARD_WIDTH + 2, BOARD_HEIGHT + 2}; 
+    board_boundary = {BOARD_X - 1, BOARD_Y - 1, BOARD_WIDTH + 2, BOARD_HEIGHT + 2}; 
     game_texture_manager->add_texture("textures/chess_board.png", "chess_board", game_renderer);
     // initialize chess board quad rectangles
     game_texture_manager->texture_quads["chess_board"].x = BOARD_X;
     game_texture_manager->texture_quads["chess_board"].y = BOARD_Y;
+
+    // initialize textures for pieces to be rendered to the board
+    game_texture_manager->add_texture("textures/Chess_pdt60.png", "black_pawn", game_renderer);
+    game_texture_manager->add_texture("textures/Chess_plt60.png", "white_pawn", game_renderer);
+    game_texture_manager->add_texture("textures/Chess_rdt60.png", "black_rook", game_renderer);
+    game_texture_manager->add_texture("textures/Chess_rlt60.png", "white_rook", game_renderer);
+    game_texture_manager->add_texture("textures/Chess_bdt60.png", "black_bishop", game_renderer);
+    game_texture_manager->add_texture("textures/Chess_blt60.png", "white_bishop", game_renderer);
+    game_texture_manager->add_texture("textures/Chess_ndt60.png", "black_knight", game_renderer);
+    game_texture_manager->add_texture("textures/Chess_nlt60.png", "white_knight", game_renderer);
+    game_texture_manager->add_texture("textures/Chess_kdt60.png", "black_king", game_renderer);
+    game_texture_manager->add_texture("textures/Chess_klt60.png", "white_king", game_renderer);
+    game_texture_manager->add_texture("textures/Chess_qdt60.png", "black_queen", game_renderer);
+    game_texture_manager->add_texture("textures/Chess_qlt60.png", "white_queen", game_renderer);
+
+    // initialize coordinates for squares (this will be fun!)
+    for (unsigned s = 0; s < NUM_SQUARES; s++) {
+        square_coords[s].w = PIECE_WIDTH;
+        square_coords[s].h = PIECE_HEIGHT;
+    }
+
+    for (unsigned s = a1, i = 0; s <= h1; s++, i++) {square_coords[s].x = BOARD_X + (i * SQUARE_WIDTH), square_coords[s].y = BOARD_Y + BOARD_HEIGHT - (SQUARE_HEIGHT);}
+    for (unsigned s = a2, i = 0; s <= h2; s++, i++) {square_coords[s].x = BOARD_X + (i * SQUARE_WIDTH), square_coords[s].y = BOARD_Y + BOARD_HEIGHT - (SQUARE_HEIGHT * 2);}
+    for (unsigned s = a3, i = 0; s <= h3; s++, i++) {square_coords[s].x = BOARD_X + (i * SQUARE_WIDTH), square_coords[s].y = BOARD_Y + BOARD_HEIGHT - (SQUARE_HEIGHT * 3);}
+    for (unsigned s = a4, i = 0; s <= h4; s++, i++) {square_coords[s].x = BOARD_X + (i * SQUARE_WIDTH), square_coords[s].y = BOARD_Y + BOARD_HEIGHT - (SQUARE_HEIGHT * 4);}
+    for (unsigned s = a5, i = 0; s <= h5; s++, i++) {square_coords[s].x = BOARD_X + (i * SQUARE_WIDTH), square_coords[s].y = BOARD_Y + BOARD_HEIGHT - (SQUARE_HEIGHT * 5);}
+    for (unsigned s = a6, i = 0; s <= h6; s++, i++) {square_coords[s].x = BOARD_X + (i * SQUARE_WIDTH), square_coords[s].y = BOARD_Y + BOARD_HEIGHT - (SQUARE_HEIGHT * 6);}
+    for (unsigned s = a7, i = 0; s <= h7; s++, i++) {square_coords[s].x = BOARD_X + (i * SQUARE_WIDTH), square_coords[s].y = BOARD_Y + BOARD_HEIGHT - (SQUARE_HEIGHT * 7);}
+    for (unsigned s = a8, i = 0; s <= h8; s++, i++) {square_coords[s].x = BOARD_X + (i * SQUARE_WIDTH), square_coords[s].y = BOARD_Y + BOARD_HEIGHT - (SQUARE_HEIGHT * 8);}
 }
 
 void game::init_sdl(void) {
@@ -365,7 +394,9 @@ void game::init_settings_menu(void) {
    for (unsigned i = 0; i < settings_menu->get_items(); i++) {
         settings_menu->item_checked[i] = false;
    }
-}
+}struct position {
+    unsigned x, y;
+};
 
 /*
     Cleanup Code
@@ -487,7 +518,7 @@ void game::update_splash_screen(double dt) {
 }
 
 void game::update_game(void) {
-
+  
 }
 
 /*
@@ -530,6 +561,88 @@ void game::render_settings_menu(void) {
     }
 }
 
+void game::render_board(void) {
+    // render board boundary
+    SDL_SetRenderDrawColor(game_renderer, 0, 0, 0, 255);
+    SDL_RenderDrawRect(game_renderer, &board_boundary);
+
+    // render chess board
+    SDL_RenderCopy(game_renderer, game_texture_manager->get_texture("chess_board"), NULL, &game_texture_manager->texture_quads["chess_board"]);
+}
+
+void game::render_pieces(void) {
+    for (unsigned square = a1; square <= h8; square++) {
+        // white pieces
+        switch (game_board.pieces[square].is_empty) {
+            case empty::yes:
+            break;
+
+            case empty::no:
+                switch (game_board.pieces[square].color) {
+                    case piece_color::white:
+                        switch(game_board.pieces[square].type) {
+                            case piece_type::pawn:
+                                SDL_RenderCopy(game_renderer, game_texture_manager->get_texture("white_pawn"), NULL, &square_coords[square]);
+                            break;
+
+                            case piece_type::rook:
+                                SDL_RenderCopy(game_renderer, game_texture_manager->get_texture("white_rook"), NULL, &square_coords[square]);
+                            break;
+
+                            case piece_type::knight:
+                                SDL_RenderCopy(game_renderer, game_texture_manager->get_texture("white_knight"), NULL, &square_coords[square]);
+                            break;
+
+                            case piece_type::bishop:
+                                SDL_RenderCopy(game_renderer, game_texture_manager->get_texture("white_bishop"), NULL, &square_coords[square]);
+                            break;
+
+                            case piece_type::king:
+                                SDL_RenderCopy(game_renderer, game_texture_manager->get_texture("white_king"), NULL, &square_coords[square]);
+                            break;
+
+                            case piece_type::queen:
+                                SDL_RenderCopy(game_renderer, game_texture_manager->get_texture("white_queen"), NULL, &square_coords[square]);
+                            break;
+                        }
+                    break;
+
+                    case piece_color::black:
+                        switch(game_board.pieces[square].type) {
+                            case piece_type::pawn:
+                                SDL_RenderCopy(game_renderer, game_texture_manager->get_texture("black_pawn"), NULL, &square_coords[square]);
+                            break;
+
+                            case piece_type::rook:
+                                SDL_RenderCopy(game_renderer, game_texture_manager->get_texture("black_rook"), NULL, &square_coords[square]);
+                            break;
+
+                            case piece_type::knight:
+                                SDL_RenderCopy(game_renderer, game_texture_manager->get_texture("black_knight"), NULL, &square_coords[square]);
+                            break;
+
+                            case piece_type::bishop:
+                                SDL_RenderCopy(game_renderer, game_texture_manager->get_texture("black_bishop"), NULL, &square_coords[square]);
+                            break;
+
+                            case piece_type::king:
+                                SDL_RenderCopy(game_renderer, game_texture_manager->get_texture("black_king"), NULL, &square_coords[square]);
+                            break;
+
+                            case piece_type::queen:
+                                SDL_RenderCopy(game_renderer, game_texture_manager->get_texture("black_queen"), NULL, &square_coords[square]);
+                            break;
+                        }
+                    break;
+                }
+            break;
+
+            default:
+            break;
+        }
+    }
+}
+
 void game::render_game(void) {
     // set background color of window
     SDL_SetRenderDrawColor(game_renderer, background_color.r, background_color.g, background_color.b, background_color.a);
@@ -537,13 +650,8 @@ void game::render_game(void) {
 
     // render version info at bottom of screen
     SDL_RenderCopy(game_renderer, version_info, NULL, &display_version_info);
-
-    // render board boundary
-    SDL_SetRenderDrawColor(game_renderer, 0, 0, 0, 255);
-    SDL_RenderDrawRect(game_renderer, &board_boundary);
-
-    // render chess board
-    SDL_RenderCopy(game_renderer, game_texture_manager->get_texture("chess_board"), NULL, &game_texture_manager->texture_quads["chess_board"]);
+    render_board();
+    render_pieces();
 }
 
 // main game loop

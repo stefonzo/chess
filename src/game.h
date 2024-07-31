@@ -9,6 +9,7 @@
 #include <memory>
 #include <unordered_map>
 #include <chrono>
+#include "board.h"
 
 #define FPS 60
 #define FRAME_DELAY 1000 / FPS
@@ -24,9 +25,12 @@
 #define BOARD_HEIGHT 512
 #define SQUARE_WIDTH 64
 #define SQUARE_HEIGHT 64
-#define NUMBER_SQUARES 64
-#define BOARD_X 350 + 1
-#define BOARD_Y 100 + 1
+#define NUMBER_SQUARES 64 // redundant macro, put into globals file?
+// these define the upper left corner of where the chess board is rendered to the window
+#define BOARD_X 350
+#define BOARD_Y 100
+#define PIECE_WIDTH 60
+#define PIECE_HEIGHT 60
 
 enum class GAME_STATE {
     SPLASH_SCREEN,
@@ -41,8 +45,13 @@ enum class ITEM_SETTINGS {
 };
 
 /*  TODO
-        -begin working on implementing chess data/logic 
-        -get textures for chess pieces rendering into game
+        -begin working on implementing logic
+            -castling
+            -en passant
+            -correct moves (knights will be tricky with how I'm representing the board)
+        -implement move evaluation
+        -figure out directed graphs
+        -begin searching plys 
 */
 
 class timer {
@@ -131,8 +140,12 @@ class game {
         std::string SPLASHSCREEN_TEXT;
 
         // board data
-        SDL_Rect board_boundary;
-        SDL_Rect board_rects[NUMBER_SQUARES];
+        SDL_Rect board_boundary; // boundary that surrounds chess board
+        chess_board game_board; // holds all the info for a chess game state
+        SDL_Rect square_coords[NUMBER_SQUARES]; // holds x, y coordinates for rendering pieces to board squares
+
+        // player data
+        std::unique_ptr<player> player_white, player_black;
 
         // init methods
         void init_sdl(void);
@@ -162,6 +175,7 @@ class game {
         void update_game(void);
         void render_game(void);
         void render_board(void);
+        void render_pieces(void);
 
         GAME_STATE game_state;
 
