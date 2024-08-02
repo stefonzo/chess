@@ -2,6 +2,7 @@
 
 #include "piece.h"
 #include <bitset>
+#include <vector>
 #include <stdint.h>
 
 #define NUM_SQUARES 64
@@ -79,23 +80,38 @@
 #define g8 62
 #define h8 63
 
+// board directions
+#define NORTH +8
+#define NORTHEAST +9
+#define NORTHWEST +7
+#define SOUTH -8
+#define SOUTHEAST -7
+#define SOUTHWEST -9
+#define EAST +1
+#define WEST -1
+
 struct player {
     std::string name;
     bool resigned, check, checkmate, draw, turn;
-    unsigned n_of_moves;
     piece_color color;
+};
+
+struct move {
+    unsigned from, to;
 };
 
 // this class will have to have all the information needed to represent the state of a chess game
 // it will be used in move finding heavily (pointers? shared_ptr?)
 class chess_board {
-    private:
-        void init_chess_board(void);
-        unsigned number_of_moves;
     public:
+        unsigned number_of_moves;
         // methods
         chess_board();
         ~chess_board();
+        void init_chess_board(void);
+        bool check_move(move m);
+        std::vector<move> generate_moves(move m);
+        bool move_piece(move m);
 
         // board data
 
@@ -122,3 +138,4 @@ class chess_board {
 };
 
 // methods for the chess_board
+unsigned get_index(unsigned rank, unsigned file);

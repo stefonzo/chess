@@ -77,14 +77,6 @@ void menu::cleanup_menu(void) {
     }
 }
 
-bool menu::check_button(int mouse_x, int mouse_y, SDL_Rect *button) {
-    if (mouse_x > button->x && mouse_x < button->w + button->x && mouse_y > button->y && mouse_y < button->h+button->y)
-    {
-        return true;
-    }
-    return false;
-}
-
 /*
     Texture Manager Code
 */
@@ -114,7 +106,6 @@ void texture_manager::add_texture(std::string path, std::string texture_name, SD
     }
 
     // create texture from surface
-    printf("Creating texture!\n");
     textures.insert({texture_name, SDL_CreateTextureFromSurface(r, loaded_surface)});
     if (textures[texture_name] == NULL) {
         printf("Unable to create texture from %s! SDL Error: %s\n", path.c_str(), SDL_GetError());
@@ -226,6 +217,21 @@ void game::init_board(void) {
     for (unsigned s = a6, i = 0; s <= h6; s++, i++) {square_coords[s].x = BOARD_X + (i * SQUARE_WIDTH), square_coords[s].y = BOARD_Y + BOARD_HEIGHT - (SQUARE_HEIGHT * 6);}
     for (unsigned s = a7, i = 0; s <= h7; s++, i++) {square_coords[s].x = BOARD_X + (i * SQUARE_WIDTH), square_coords[s].y = BOARD_Y + BOARD_HEIGHT - (SQUARE_HEIGHT * 7);}
     for (unsigned s = a8, i = 0; s <= h8; s++, i++) {square_coords[s].x = BOARD_X + (i * SQUARE_WIDTH), square_coords[s].y = BOARD_Y + BOARD_HEIGHT - (SQUARE_HEIGHT * 8);}
+
+    // initialize coordinates for square boundaries (this should be easier than previously...)
+    for (unsigned s = 0; s < NUM_SQUARES; s++) {
+        square_boundaries[s].w = SQUARE_WIDTH;
+        square_boundaries[s].h = SQUARE_HEIGHT;
+    }
+
+    for (unsigned s = a1, i = 0; s <= h1; s++, i++) {square_boundaries[s].x = BOARD_X + (i * SQUARE_WIDTH), square_boundaries[s].y = BOARD_Y + BOARD_HEIGHT - (SQUARE_HEIGHT);}
+    for (unsigned s = a2, i = 0; s <= h2; s++, i++) {square_boundaries[s].x = BOARD_X + (i * SQUARE_WIDTH), square_boundaries[s].y = BOARD_Y + BOARD_HEIGHT - (SQUARE_HEIGHT * 2);}
+    for (unsigned s = a3, i = 0; s <= h3; s++, i++) {square_boundaries[s].x = BOARD_X + (i * SQUARE_WIDTH), square_boundaries[s].y = BOARD_Y + BOARD_HEIGHT - (SQUARE_HEIGHT * 3);}
+    for (unsigned s = a4, i = 0; s <= h4; s++, i++) {square_boundaries[s].x = BOARD_X + (i * SQUARE_WIDTH), square_boundaries[s].y = BOARD_Y + BOARD_HEIGHT - (SQUARE_HEIGHT * 4);}
+    for (unsigned s = a5, i = 0; s <= h5; s++, i++) {square_boundaries[s].x = BOARD_X + (i * SQUARE_WIDTH), square_boundaries[s].y = BOARD_Y + BOARD_HEIGHT - (SQUARE_HEIGHT * 5);}
+    for (unsigned s = a6, i = 0; s <= h6; s++, i++) {square_boundaries[s].x = BOARD_X + (i * SQUARE_WIDTH), square_boundaries[s].y = BOARD_Y + BOARD_HEIGHT - (SQUARE_HEIGHT * 6);}
+    for (unsigned s = a7, i = 0; s <= h7; s++, i++) {square_boundaries[s].x = BOARD_X + (i * SQUARE_WIDTH), square_boundaries[s].y = BOARD_Y + BOARD_HEIGHT - (SQUARE_HEIGHT * 7);}
+    for (unsigned s = a8, i = 0; s <= h8; s++, i++) {square_boundaries[s].x = BOARD_X + (i * SQUARE_WIDTH), square_boundaries[s].y = BOARD_Y + BOARD_HEIGHT - (SQUARE_HEIGHT * 8);}
 }
 
 void game::init_sdl(void) {
@@ -450,6 +456,9 @@ void game::mouse_event(SDL_Event *e) {
         if (e->type == SDL_MOUSEBUTTONDOWN) {
             SDL_GetMouseState(&mouse_x, &mouse_y);
             mouse_clicked = true;
+            if (game_state == GAME_STATE::GAME) {
+                get_square();
+            }
         } else {
             mouse_clicked = false;
         }
@@ -471,6 +480,15 @@ void game::keyboard_event(SDL_Event *e) {
     }
 }
 
+unsigned game::get_square(void) {
+    for (unsigned i = 0; i < NUM_SQUARES; i++) {
+        if (check_button(mouse_x, mouse_y, &square_boundaries[i])) {
+            return i;
+        }
+    }
+    return 65;
+}
+
 /*
     Update Code
 */
@@ -479,7 +497,7 @@ void game::update_main_menu(void) {
 
     // check if an item has been selected
     for (unsigned i = 0; i < main_menu->get_items(); i++) {
-        if (main_menu->check_button(mouse_x, mouse_y, &main_menu->item_boundaries[i])) {
+        if (check_button(mouse_x, mouse_y, &main_menu->item_boundaries[i])) {
             main_menu->item_checked[i] = true;
             if (mouse_clicked == true) {
                 game_state = main_menu->item_game_state[i];
@@ -493,7 +511,7 @@ void game::update_main_menu(void) {
 void game::update_settings_menu(void) {
     for (unsigned i = 0; i < settings_menu->get_items(); i++) {
         // mouse is over an item
-        if (settings_menu->check_button(mouse_x, mouse_y, &settings_menu->item_boundaries[i])) {
+        if (check_button(mouse_x, mouse_y, &settings_menu->item_boundaries[i])) {
             settings_menu->item_checked[i] = true;
             // mouse is over an item and has been clicked
             if (mouse_clicked == true) {
@@ -518,7 +536,7 @@ void game::update_splash_screen(double dt) {
 }
 
 void game::update_game(void) {
-  
+   
 }
 
 /*
@@ -703,4 +721,12 @@ void game::loop(void) {
             SDL_Delay(FRAME_DELAY - frame_time);
         }
     }
+}
+
+bool check_button(int mouse_x, int mouse_y, SDL_Rect *button) {
+    if (mouse_x > button->x && mouse_x < button->w + button->x && mouse_y > button->y && mouse_y < button->h+button->y)
+    {
+        return true;
+    }
+    return false;
 }

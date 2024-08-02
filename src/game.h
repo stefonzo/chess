@@ -98,7 +98,6 @@ class menu {
         menu(unsigned n_items); // n_items is how many buttons/items are in the menu
         ~menu(); 
         unsigned get_items(void) { return items; } // used for loops
-        bool check_button(int mouse_x, int mouse_y, SDL_Rect *button);
 };
 
 class game {
@@ -142,10 +141,8 @@ class game {
         // board data
         SDL_Rect board_boundary; // boundary that surrounds chess board
         chess_board game_board; // holds all the info for a chess game state
-        SDL_Rect square_coords[NUMBER_SQUARES]; // holds x, y coordinates for rendering pieces to board squares
-
-        // player data
-        std::unique_ptr<player> player_white, player_black;
+        SDL_Rect square_coords[NUMBER_SQUARES]; // holds x, y coordinates for rendering pieces to board squares (I'm lazy so will also be used as boundary for mouse input)
+        SDL_Rect square_boundaries[NUMBER_SQUARES]; // are used in conjunction with the check_button() method to give the index of the chess square that was clicked on, and can be used to outline a selected square
 
         // init methods
         void init_sdl(void);
@@ -161,6 +158,7 @@ class game {
         // input functions
         void mouse_event(SDL_Event *e);
         void keyboard_event(SDL_Event *e);
+        unsigned get_square(void); // will be used in the update_game method
 
         void update_splash_screen(double dt);
         void render_splash_screen(void);
@@ -186,3 +184,5 @@ class game {
         ~game();
         void loop(void); // main game loop
 };
+
+bool check_button(int mouse_x, int mouse_y, SDL_Rect *button);
