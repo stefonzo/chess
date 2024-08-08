@@ -6,6 +6,7 @@
 #include <string>
 #include <stdio.h>
 #include <vector>
+#include <queue>
 #include <memory>
 #include <unordered_map>
 #include <chrono>
@@ -17,7 +18,7 @@
 #define WINDOW_HEIGHT 800
 #define MAIN_MENU_CHAR_WIDTH 15
 #define SETTINGS_MENU_CHAR_WIDTH 25
-#define SPLASHSCREEN_TIME 5000.0f
+#define SPLASHSCREEN_TIME 3000.0f
 #define SPLASHSCREEN_FONT_WIDTH 20
 #define SPLASHSCREEN_FONT_HEIGHT 55
 #define SPLASHSCREEN_X 250
@@ -31,6 +32,7 @@
 #define BOARD_Y 100
 #define PIECE_WIDTH 60
 #define PIECE_HEIGHT 60
+#define SQUARES_BUFFER 2
 
 enum class GAME_STATE {
     SPLASH_SCREEN,
@@ -54,7 +56,7 @@ enum class ITEM_SETTINGS {
         -begin searching plys 
 */
 
-class timer {
+class timer { // code comes from chatgpt (means it needs to be tested thoroughly to ensure that it works correctly!)
     private:
         bool paused; // is the timer running?
         std::chrono::time_point<std::chrono::steady_clock> start_time, paused_time; // time_point type represents a point in time obtained from a steady_clock, these values are used to calculate durations (alongside paused duration)
@@ -122,8 +124,10 @@ class game {
         SDL_Color background_color;
 
         // mouse data
+        unsigned mouse_clicks;
         int mouse_x, mouse_y;
         bool mouse_clicked;
+        std::queue<int> square_moves;
 
         // keyboard data
         char key_press;
@@ -159,6 +163,7 @@ class game {
         void mouse_event(SDL_Event *e);
         void keyboard_event(SDL_Event *e);
         unsigned get_square(void); // will be used in the update_game method
+        void get_player_move(void);
 
         void update_splash_screen(double dt);
         void render_splash_screen(void);

@@ -175,6 +175,8 @@ void game::init_game(void) {
 
     game_texture_manager = std::make_unique<texture_manager>();
 
+    mouse_clicks = 0;
+
     init_main_menu();
     init_settings_menu();
     init_splashscreen();
@@ -400,9 +402,7 @@ void game::init_settings_menu(void) {
    for (unsigned i = 0; i < settings_menu->get_items(); i++) {
         settings_menu->item_checked[i] = false;
    }
-}struct position {
-    unsigned x, y;
-};
+}
 
 /*
     Cleanup Code
@@ -449,6 +449,25 @@ game::~game() {
 
 // game input
 
+void game::get_player_move(void) {
+    square_moves.push(get_square()); // get data for player moves (from and to squares)
+    if (square_moves.size() == 2) {
+        if (game_board.player_white.turn) {
+            game_board.player_white.player_move.from = square_moves.front();
+            square_moves.pop();
+            game_board.player_white.player_move.to = square_moves.front();
+            square_moves.pop();
+        printf("%d %d\n", game_board.player_white.player_move.from, game_board.player_white.player_move.to);
+        } else if (game_board.player_black.turn) {
+            game_board.player_black.player_move.from = square_moves.front();
+            square_moves.pop();
+            game_board.player_black.player_move.to = square_moves.front();
+            square_moves.pop();
+            printf("%d %d\n", game_board.player_black.player_move.from, game_board.player_black.player_move.to);
+        }
+    }
+}
+
 void game::mouse_event(SDL_Event *e) {
     // mouse event happened
     if( e->type == SDL_MOUSEMOTION || e->type == SDL_MOUSEBUTTONDOWN || e->type == SDL_MOUSEBUTTONUP ) {
@@ -456,8 +475,8 @@ void game::mouse_event(SDL_Event *e) {
         if (e->type == SDL_MOUSEBUTTONDOWN) {
             SDL_GetMouseState(&mouse_x, &mouse_y);
             mouse_clicked = true;
-            if (game_state == GAME_STATE::GAME) {
-                get_square();
+            if (game_state == GAME_STATE::GAME) { // do mouse stuff for game with code in here
+                get_player_move();
             }
         } else {
             mouse_clicked = false;
@@ -518,6 +537,7 @@ void game::update_settings_menu(void) {
                 if (settings_menu->item_settings[i] == ITEM_SETTINGS::MENU) {
                     game_state = GAME_STATE::MENU;
                     init_main_menu();
+                    game_board.init_chess_board();
                 }
             }
         } else {
@@ -536,7 +556,15 @@ void game::update_splash_screen(double dt) {
 }
 
 void game::update_game(void) {
-   
+    if (game_board.player_white.turn) {
+        printf("white\n");
+        printf("%d %d\n", game_board.player_white.player_move.from, game_board.player_white.player_move.to);
+        game_board.move_piece(game_board.player_white.player_move);
+    } else if (game_board.player_black.turn) {
+        printf("black\n");
+        printf("%d %d\n", game_board.player_black.player_move.from, game_board.player_black.player_move.to);
+        game_board.move_piece(game_board.player_black.player_move);
+    }
 }
 
 /*

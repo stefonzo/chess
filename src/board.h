@@ -90,14 +90,15 @@
 #define EAST +1
 #define WEST -1
 
+struct move {
+    int from, to;
+};
+
 struct player {
     std::string name;
     bool resigned, check, checkmate, draw, turn;
     piece_color color;
-};
-
-struct move {
-    unsigned from, to;
+    move player_move;
 };
 
 // this class will have to have all the information needed to represent the state of a chess game
@@ -105,10 +106,14 @@ struct move {
 class chess_board {
     public:
         unsigned number_of_moves;
+        unsigned white_pieces, black_pieces, total_pieces;
         // methods
+
         chess_board();
         ~chess_board();
         void init_chess_board(void);
+        bool can_white_pawn_move(move m);
+        bool can_black_pawn_move(move m);
         bool check_move(move m);
         std::vector<move> generate_moves(move m);
         bool move_piece(move m);
