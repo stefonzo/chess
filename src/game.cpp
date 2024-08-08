@@ -556,6 +556,7 @@ void game::update_splash_screen(double dt) {
 }
 
 void game::update_game(void) {
+    game_board.print_board_info();
     if (game_board.player_white.turn) {
         printf("white\n");
         printf("%d %d\n", game_board.player_white.player_move.from, game_board.player_white.player_move.to);

@@ -105,7 +105,7 @@ struct player {
 // it will be used in move finding heavily (pointers? shared_ptr?)
 class chess_board {
     public:
-        unsigned number_of_moves;
+        unsigned number_of_moves, number_of_turns;
         unsigned white_pieces, black_pieces, total_pieces;
         // methods
 
@@ -117,6 +117,7 @@ class chess_board {
         bool check_move(move m);
         std::vector<move> generate_moves(move m);
         bool move_piece(move m);
+        void print_board_info(void);
 
         // board data
 

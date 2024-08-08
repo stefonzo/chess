@@ -11,6 +11,7 @@ unsigned get_index(unsigned rank, unsigned file) {
 void chess_board::init_chess_board(void) {
     white_pieces = 8, black_pieces = 8;
     total_pieces = white_pieces + black_pieces;
+    number_of_moves = 0, number_of_turns = 0;
     /*
         Initialize chess board
     */
@@ -64,7 +65,10 @@ bool chess_board::can_white_pawn_move(move m) {
     // move one square north
     if ((m.to == m.from + 8) && (pieces[m.to].is_empty == empty::yes)) return true;
     // standard attack
-    if (((m.to == m.from + 9) || (m.to == m.from + 7)) && (pieces[m.to].is_empty == empty::no)) return true;
+    if (((m.to == m.from + 9) || (m.to == m.from + 7)) && (pieces[m.to].is_empty == empty::no)) { 
+        black_pieces--, total_pieces--;
+        return true; 
+    }
     return false; 
 }
 
@@ -81,7 +85,10 @@ bool chess_board::can_black_pawn_move(move m) {
     // move one square south
     if ((m.to == m.from - 8) && (pieces[m.to].is_empty == empty::yes)) return true;
     // standard attack 
-    if (((m.to == m.from - 9) || (m.to == m.from - 7)) && (pieces[m.to].is_empty == empty::no)) return true;
+    if (((m.to == m.from - 9) || (m.to == m.from - 7)) && (pieces[m.to].is_empty == empty::no)) { 
+        white_pieces--, total_pieces--;
+        return true; 
+    }
     return false;
 }
 
@@ -91,9 +98,9 @@ bool chess_board::check_move(move m) { // (figure out how to use macros here)
         return false;
     }
     // code for conditionals comes from chat gpt
-    unsigned from_file = m.from % 8;
-    unsigned from_rank = m.from / 8;
-    unsigned to_rank = m.to / 8;
+    // unsigned from_file = m.from % 8;
+    // unsigned from_rank = m.from / 8;
+    // unsigned to_rank = m.to / 8;
 
     // preventing horizontal wraparounds 
     // if ((m.to == m.from + 1) && (from_file == 7)) return false; // moving to the east from the far right rank
@@ -201,4 +208,9 @@ chess_board::chess_board() {
 
 chess_board::~chess_board() {
 
+}
+
+void chess_board::print_board_info(void) {
+    printf("%d total pieces remaining.\n", total_pieces);
+    printf("%d white pieces remaining. %d Black pieces remaining.\n", white_pieces, black_pieces);
 }
