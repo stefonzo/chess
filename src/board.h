@@ -105,21 +105,37 @@ struct player {
 // it will be used in move finding heavily (pointers? shared_ptr?)
 class chess_board {
     public:
-        unsigned number_of_moves, number_of_turns;
+        // player data used to set/get additional game state data
+        player player_white, player_black;
+
+        unsigned number_of_white_moves, number_of_black_moves, number_of_turns;
         unsigned white_pieces, black_pieces, total_pieces;
-        // methods
 
         chess_board();
         ~chess_board();
+
+        // methods
         void init_chess_board(void);
+
+        // piece movement functions
         bool can_white_pawn_move(move m);
+        bool can_white_rook_move(move m);
+        bool can_white_bishop_move(move m);
+        bool can_white_knight_move(move m);
+        bool can_white_king_move(move m);
+        bool can_white_queen_move(move m);
+
         bool can_black_pawn_move(move m);
+        bool can_black_rook_move(move m);
+        bool can_black_bishop_move(move m);
+        bool can_black_knight_move(move m);
+        bool can_black_king_move(move m);
+        bool can_black_queen_move(move m);
+
         bool check_move(move m);
         std::vector<move> generate_moves(move m);
         bool move_piece(move m);
         void print_board_info(void);
-
-        // board data
 
         // square-centric board representation (array, mailbox)
         chess_piece pieces[NUM_SQUARES];
@@ -138,9 +154,6 @@ class chess_board {
         std::bitset<NUM_SQUARES> black_bishop;
         std::bitset<NUM_SQUARES> black_king;
         std::bitset<NUM_SQUARES> black_queen;
-
-        // player data used to set/get additional game state data
-        player player_white, player_black;
 };
 
 // methods for the chess_board

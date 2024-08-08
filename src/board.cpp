@@ -11,7 +11,7 @@ unsigned get_index(unsigned rank, unsigned file) {
 void chess_board::init_chess_board(void) {
     white_pieces = 8, black_pieces = 8;
     total_pieces = white_pieces + black_pieces;
-    number_of_moves = 0, number_of_turns = 0;
+    number_of_white_moves = 0, number_of_black_moves = 0, number_of_turns = 0;
     /*
         Initialize chess board
     */
@@ -72,6 +72,12 @@ bool chess_board::can_white_pawn_move(move m) {
     return false; 
 }
 
+bool chess_board::can_white_rook_move(move m) { return false;}
+bool chess_board::can_white_bishop_move(move m) { return false; }
+bool chess_board::can_white_knight_move(move m) { return false; }
+bool chess_board::can_white_king_move(move m) {  return false; }
+bool chess_board::can_white_queen_move(move m) { return false; }
+
 bool chess_board::can_black_pawn_move(move m) {
     // move two squares down
     if ((pieces[m.from].has_moved == false) && (m.to == m.from + (2 * - 8))) {
@@ -91,6 +97,12 @@ bool chess_board::can_black_pawn_move(move m) {
     }
     return false;
 }
+
+bool chess_board::can_black_rook_move(move m) { return false; }
+bool chess_board::can_black_bishop_move(move m) { return false; }
+bool chess_board::can_black_knight_move(move m) { return false;}
+bool chess_board::can_black_king_move(move m) { return false; }
+bool chess_board::can_black_queen_move(move m) { return false; }
 
 bool chess_board::check_move(move m) { // (figure out how to use macros here)
     if (m.from == m.to) return false; // not likely to be a computer generated move but in case the user has a move like this
@@ -123,23 +135,27 @@ bool chess_board::check_move(move m) { // (figure out how to use macros here)
                 case piece_color::white:
                     switch (piece.type) {
                         case piece_type::pawn:
-                            printf("move white pawn\n");
                             return can_white_pawn_move(m);
                         break;
 
                         case piece_type::rook:
+                            return can_white_rook_move(m);
                         break;
 
                         case piece_type::knight:
+                            return can_white_knight_move(m);
                         break;
 
                         case piece_type::bishop:
+                            return can_white_bishop_move(m);
                         break;
                         
                         case piece_type::king:
+                            return can_white_king_move(m);
                         break;
 
                         case piece_type::queen:
+                            return can_white_queen_move(m);
                         break;
                     }
                 break;
@@ -147,23 +163,27 @@ bool chess_board::check_move(move m) { // (figure out how to use macros here)
                 case piece_color::black:
                     switch (piece.type) {
                         case piece_type::pawn:
-                            printf("move black pawn\n");
                             return can_black_pawn_move(m);
                         break;
 
                         case piece_type::rook:
+                            return can_black_rook_move(m);
                         break;
 
                         case piece_type::knight:
+                            return can_black_knight_move(m);
                         break;
 
                         case piece_type::bishop:
+                            return can_black_bishop_move(m);
                         break;
                         
                         case piece_type::king:
+                            return can_black_king_move(m);
                         break;
 
                         case piece_type::queen:
+                            return can_black_queen_move(m);
                         break;
                     }
                 break;
@@ -173,6 +193,7 @@ bool chess_board::check_move(move m) { // (figure out how to use macros here)
             return false;
         break;
     }
+    return false;
 }
  
 bool chess_board::move_piece(move m) { // simply moves pieces (does not check if move is valid, use check_move() for that)
@@ -181,7 +202,6 @@ bool chess_board::move_piece(move m) { // simply moves pieces (does not check if
     if (check_move(m)) {
         if (player_white.turn) {
             if (pieces[m.from].color == piece_color::white) {
-                printf("White's turn!\n");
                 pieces[m.to] = pieces[m.from];
                 pieces[m.from] = swap_piece;
                 player_white.turn = false;
@@ -190,7 +210,6 @@ bool chess_board::move_piece(move m) { // simply moves pieces (does not check if
             } 
         } else if (player_black.turn) {
             if (pieces[m.from].color == piece_color::black) {
-                printf("Black's turn!\n");
                 pieces[m.to] = pieces[m.from];
                 pieces[m.from] = swap_piece;
                 player_white.turn = true;
@@ -211,6 +230,8 @@ chess_board::~chess_board() {
 }
 
 void chess_board::print_board_info(void) {
+    printf("White has made %d moves. Black has made %d moves.\n", number_of_white_moves, number_of_black_moves);
+    printf("%d turns have elapsed.\n", number_of_turns);
     printf("%d total pieces remaining.\n", total_pieces);
     printf("%d white pieces remaining. %d Black pieces remaining.\n", white_pieces, black_pieces);
 }
