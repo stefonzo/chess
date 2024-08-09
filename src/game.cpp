@@ -152,7 +152,7 @@ void game::init_game(void) {
     // initialize text select color
     selected_color = {255, 255, 255, 255};
 
-    background_color = {0, 220, 50, 255};
+    background_color = {0, 150, 200, 255};
     
     VERSION = "Version 0.03";
 
@@ -449,8 +449,9 @@ game::~game() {
 
 // game input
 
-void game::get_player_move(void) {
-    square_moves.push(get_square()); // get data for player moves (from and to squares)
+void game::get_player_move(void) { // need to update/fix this method!!! (It's currently getting squares mixed up which is causing major issues...)
+    //square_moves.push(get_square()); // get data for player moves (from and to squares)
+    if ((square_moves.empty() == true) || square_moves.size() == 1) square_moves.push(get_square());
     if (square_moves.size() == 2) {
         if (game_board.player_white.turn) {
             game_board.player_white.player_move.from = square_moves.front();
@@ -469,22 +470,30 @@ void game::get_player_move(void) {
 }
 
 void game::mouse_event(SDL_Event *e) {
-    // mouse event happened
-    if( e->type == SDL_MOUSEMOTION || e->type == SDL_MOUSEBUTTONDOWN || e->type == SDL_MOUSEBUTTONUP ) {
-        // mouse is clicked
-        if (e->type == SDL_MOUSEBUTTONDOWN) {
+    //menu mouse handling
+    if (game_state == GAME_STATE::MENU || game_state == GAME_STATE::SETTINGS) {
+        if (e->type == SDL_MOUSEMOTION || e->type == SDL_MOUSEBUTTONDOWN || e->type == SDL_MOUSEBUTTONUP) {
+            // mouse is clicked
+            if (e->type == SDL_MOUSEBUTTONDOWN) {
+                SDL_GetMouseState(&mouse_x, &mouse_y);
+                mouse_clicked = true;
+            } else {
+                mouse_clicked = false;
+            }
+            // mouse is moved
+            if (e->type == SDL_MOUSEMOTION) {
+                SDL_GetMouseState(&mouse_x, &mouse_y);
+            }
+        }
+    }
+    // game mouse handling
+    if (game_state == GAME_STATE::GAME) {
+        if (e->type == SDL_MOUSEBUTTONDOWN && game_state == GAME_STATE::GAME) {
             SDL_GetMouseState(&mouse_x, &mouse_y);
             mouse_clicked = true;
-            if (game_state == GAME_STATE::GAME) { // do mouse stuff for game with code in here
-                get_player_move();
-            }
+            get_player_move();
         } else {
             mouse_clicked = false;
-        }
-
-        // mouse is moved
-        if (e->type == SDL_MOUSEMOTION) {
-            SDL_GetMouseState(&mouse_x, &mouse_y);
         }
     }
 }

@@ -135,6 +135,8 @@ class chess_board {
         bool check_move(move m);
         std::vector<move> generate_moves(move m);
         bool move_piece(move m);
+        unsigned get_turns(void);
+
         void print_board_info(void);
 
         // square-centric board representation (array, mailbox)
