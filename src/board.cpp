@@ -72,7 +72,17 @@ bool chess_board::can_white_pawn_move(move m) {
 bool chess_board::can_white_rook_move(move m) { return false;}
 bool chess_board::can_white_bishop_move(move m) { return false; }
 bool chess_board::can_white_knight_move(move m) { return false; }
-bool chess_board::can_white_king_move(move m) {  return false; }
+bool chess_board::can_white_king_move(move m) {
+    // move north
+    if ((m.to == m.from + 8) && (pieces[m.to].color != piece_color::white)) return true;
+    // move south
+    if ((m.to == m.from - 8) && (pieces[m.to].color != piece_color::white)) return true;
+    // move east
+    if ((m.to == m.from + 1) && (pieces[m.to].color != piece_color::white)) return true;
+    // move west
+    if ((m.to == m.from - 1) && (pieces[m.to].color != piece_color::white)) return true;
+    return false;
+}
 bool chess_board::can_white_queen_move(move m) { return false; }
 
 bool chess_board::can_black_pawn_move(move m) {
@@ -95,20 +105,30 @@ bool chess_board::can_black_pawn_move(move m) {
 bool chess_board::can_black_rook_move(move m) { return false; }
 bool chess_board::can_black_bishop_move(move m) { return false; }
 bool chess_board::can_black_knight_move(move m) { return false;}
-bool chess_board::can_black_king_move(move m) { return false; }
+bool chess_board::can_black_king_move(move m) { 
+    // move north
+    if ((m.to == m.from + 8) && (pieces[m.to].color != piece_color::black)) return true;
+    // move south
+    if ((m.to == m.from - 8) && (pieces[m.to].color != piece_color::black)) return true;
+    // move east
+    if ((m.to == m.from + 1) && (pieces[m.to].color != piece_color::black)) return true;
+    // move west
+    if ((m.to == m.from - 1) && (pieces[m.to].color != piece_color::black)) return true;
+    return false;
+ }
 bool chess_board::can_black_queen_move(move m) { return false; }
 
 bool chess_board::check_move(move m) { // (figure out how to use macros here)
     if (m.from == m.to) return false; // not likely to be a computer generated move but in case the user has a move like this
     if ((m.from >= NUM_SQUARES) || (m.from < 0) || (m.to >= NUM_SQUARES) || (m.to < 0)) return false; // is move within board index?
     // code for conditionals comes from chat gpt
-    // unsigned from_file = m.from % 8;
-    // unsigned from_rank = m.from / 8;
-    // unsigned to_rank = m.to / 8;
+    unsigned from_file = m.from % 8;
+    unsigned from_rank = m.from / 8;
+    unsigned to_rank = m.to / 8;
 
     // preventing horizontal wraparounds 
-    // if ((m.to == m.from + 1) && (from_file == 7)) return false; // moving to the east from the far right rank
-    // if ((m.to == m.from - 1) && (from_file == 0)) return false; // moving to the west from the far left rank
+    if ((m.to == m.from + 1) && (from_file == 7)) return false; // moving to the east from the far right rank
+    if ((m.to == m.from - 1) && (from_file == 0)) return false; // moving to the west from the far left rank
 
     // // preventing vertical wraparounds (this code is kind of redundant)
     // if ((m.to == m.from + 8) && (to_rank == from_rank + 1)) return false; // in last rank and try to move north
@@ -199,6 +219,7 @@ bool chess_board::move_piece(move m) { // simply moves pieces (does not check if
                     black_pieces--;
                     total_pieces--;
                 }
+                number_of_white_moves++;
                 pieces[m.to] = pieces[m.from];
                 pieces[m.from] = swap_piece;
                 player_white.turn = false;
@@ -212,6 +233,7 @@ bool chess_board::move_piece(move m) { // simply moves pieces (does not check if
                     white_pieces--;
                     total_pieces--;
                 }
+                number_of_black_moves++;
                 pieces[m.to] = pieces[m.from];
                 pieces[m.from] = swap_piece;
                 player_white.turn = true;
