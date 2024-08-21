@@ -629,11 +629,7 @@ void game::render_board(void) {
 void game::render_pieces(void) {
     for (unsigned square = a1; square <= h8; square++) {
         // white pieces
-        switch (game_board.pieces[square].is_empty) {
-            case empty::yes:
-            break;
-
-            case empty::no:
+        if (game_board.pieces[square].type != piece_type::empty) {
                 switch (game_board.pieces[square].color) {
                     case piece_color::white:
                         switch(game_board.pieces[square].type) {
@@ -691,13 +687,10 @@ void game::render_pieces(void) {
                         }
                     break;
                 }
-            break;
-
-            default:
-            break;
-        }
+        } 
     }
 }
+
 
 void game::render_game(void) {
     // set background color of window

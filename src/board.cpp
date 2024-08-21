@@ -17,35 +17,35 @@ void chess_board::init_chess_board(void) {
     */
     //empty squares
     for (unsigned i = a3; i <= h6; i++) {
-        pieces[i].is_empty = empty::yes;
+        pieces[i].type = piece_type::empty;
     }
     // white pawns
     for (unsigned i = a2; i <= h2; i++) {
-        pieces[i] = {piece_color::white, piece_type::pawn, empty::no, false};
+        pieces[i] = {piece_color::white, piece_type::pawn, false};
     }
     // black pawns
     for (unsigned i = a7; i <= h7; i++) {
-        pieces[i] = {piece_color::black, piece_type::pawn, empty::no, false};
+        pieces[i] = {piece_color::black, piece_type::pawn, false};
     }
     // first row
-    pieces[a1] = {piece_color::white, piece_type::rook, empty::no, false};
-    pieces[b1] = {piece_color::white, piece_type::knight, empty::no, false};
-    pieces[c1] = {piece_color::white, piece_type::bishop, empty::no, false};
-    pieces[d1] = {piece_color::white, piece_type::queen, empty::no, false};
-    pieces[e1] = {piece_color::white, piece_type::king, empty::no, false};
-    pieces[f1] = {piece_color::white, piece_type::bishop, empty::no, false};
-    pieces[g1] = {piece_color::white, piece_type::knight, empty::no, false};
-    pieces[h1] = {piece_color::white, piece_type::rook, empty::no, false};
+    pieces[a1] = {piece_color::white, piece_type::rook, false};
+    pieces[b1] = {piece_color::white, piece_type::knight, false};
+    pieces[c1] = {piece_color::white, piece_type::bishop, false};
+    pieces[d1] = {piece_color::white, piece_type::queen, false};
+    pieces[e1] = {piece_color::white, piece_type::king, false};
+    pieces[f1] = {piece_color::white, piece_type::bishop, false};
+    pieces[g1] = {piece_color::white, piece_type::knight, false};
+    pieces[h1] = {piece_color::white, piece_type::rook, false};
 
     // last row
-    pieces[a8] = {piece_color::black, piece_type::rook, empty::no, false};
-    pieces[b8] = {piece_color::black, piece_type::knight, empty::no, false};
-    pieces[c8] = {piece_color::black, piece_type::bishop, empty::no, false};
-    pieces[d8] = {piece_color::black, piece_type::queen, empty::no, false};
-    pieces[e8] = {piece_color::black, piece_type::king, empty::no, false};
-    pieces[f8] = {piece_color::black, piece_type::bishop, empty::no, false};
-    pieces[g8] = {piece_color::black, piece_type::knight, empty::no, false};
-    pieces[h8] = {piece_color::black, piece_type::rook, empty::no, false};
+    pieces[a8] = {piece_color::black, piece_type::rook, false};
+    pieces[b8] = {piece_color::black, piece_type::knight, false};
+    pieces[c8] = {piece_color::black, piece_type::bishop, false};
+    pieces[d8] = {piece_color::black, piece_type::queen, false};
+    pieces[e8] = {piece_color::black, piece_type::king, false};
+    pieces[f8] = {piece_color::black, piece_type::bishop, false};
+    pieces[g8] = {piece_color::black, piece_type::knight, false};
+    pieces[h8] = {piece_color::black, piece_type::rook, false};
 
     // initialize player info
     player_white = {"Player White", false, false, false, false, true, piece_color::white, {-1, -1}};
@@ -57,15 +57,15 @@ bool chess_board::can_white_pawn_move(move m) {
     if ((pieces[m.from].has_moved == false) && (m.to == m.from + (2 * 8))) { // pawn hasn't been moved and is going to be moved 2 squares north
         // check if two squares north of piece are occupied
         for (int s = 8; s <= 16; s = s * 2) {
-            if (pieces[m.from + s].is_empty == empty::no) return false;
+            if (pieces[m.from + s].type != piece_type::empty) return false;
         }
         pieces[m.from].has_moved = true;
         return true;
     }
     // move one square north
-    if ((m.to == m.from + 8) && (pieces[m.to].is_empty == empty::yes)) return true;
+    if ((m.to == m.from + 8) && (pieces[m.to].type == piece_type::empty)) return true;
     // standard attack
-    if (((m.to == m.from + 9) || (m.to == m.from + 7)) && (pieces[m.to].is_empty == empty::no)) return true; 
+    if (((m.to == m.from + 9) || (m.to == m.from + 7)) && (pieces[m.to].type != piece_type::empty)) return true; 
     return false; 
 }
 
@@ -90,15 +90,15 @@ bool chess_board::can_black_pawn_move(move m) {
     if ((pieces[m.from].has_moved == false) && (m.to == m.from + (2 * - 8))) {
         // check if two squares south of piece are occupied
         for (int s = -9; s <= -18 ;s = s * 2) {
-            if (pieces[m.from + s].is_empty == empty::no) return false;
+            if (pieces[m.from + s].type == piece_type::empty) return false;
         }
         pieces[m.from].has_moved = true;
         return true;
     }
     // move one square south
-    if ((m.to == m.from - 8) && (pieces[m.to].is_empty == empty::yes)) return true;
+    if ((m.to == m.from - 8) && (pieces[m.to].type == piece_type::empty)) return true;
     // standard attack 
-    if (((m.to == m.from - 9) || (m.to == m.from - 7)) && (pieces[m.to].is_empty == empty::no)) return true; 
+    if (((m.to == m.from - 9) || (m.to == m.from - 7)) && (pieces[m.to].type != piece_type::empty)) return true; 
     return false;
 }
 
@@ -141,8 +141,7 @@ bool chess_board::check_move(move m) { // (figure out how to use macros here)
     if ((m.to == m.from - 7) && (m.from == h1)) return false; // in bottom right corner trying to move southeast
 
     chess_piece piece = pieces[m.from];
-    switch (piece.is_empty) {
-        case empty::no:
+    if (pieces[m.from].type != piece_type::empty) {
             switch (piece.color) {
                 case piece_color::white:
                     switch (piece.type) {
@@ -200,16 +199,12 @@ bool chess_board::check_move(move m) { // (figure out how to use macros here)
                     }
                 break;
             }
-        break;
-        case empty::yes:
-            return false;
-        break;
     }
     return false;
 }
  
 bool chess_board::move_piece(move m) { // simply moves pieces (does not check if move is valid, use check_move() for that)
-    chess_piece swap_piece = {piece_color::white, piece_type::pawn, empty::yes, false};
+    chess_piece swap_piece = {piece_color::white, piece_type::empty, false};
     printf("Move from %d to %d\n", m.from, m.to);
     if (check_move(m)) {
         if (player_white.turn) {
