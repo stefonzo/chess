@@ -65,7 +65,7 @@ bool chess_board::can_white_pawn_move(move m) {
     // move one square north
     if ((m.to == m.from + 8) && (pieces[m.to].type == piece_type::empty)) return true;
     // standard attack
-    if (((m.to == m.from + 9) || (m.to == m.from + 7)) && (pieces[m.to].type != piece_type::empty)) return true; 
+    if (((m.to == m.from + 9) || (m.to == m.from + 7)) && (pieces[m.to].type != piece_type::empty) && (pieces[m.to].color != piece_color::white)) return true; 
     return false; 
 }
 
@@ -73,15 +73,6 @@ bool chess_board::can_white_rook_move(move m) { return false;}
 bool chess_board::can_white_bishop_move(move m) { return false; }
 bool chess_board::can_white_knight_move(move m) { return false; }
 bool chess_board::can_white_king_move(move m) {
-    // move north
-    if ((m.to == m.from + 8) && (pieces[m.to].color != piece_color::white)) return true;
-    // move south
-    if ((m.to == m.from - 8) && (pieces[m.to].color != piece_color::white)) return true;
-    // move east
-    if ((m.to == m.from + 1) && (pieces[m.to].color != piece_color::white)) return true;
-    // move west
-    if ((m.to == m.from - 1) && (pieces[m.to].color != piece_color::white)) return true;
-    return false;
 }
 bool chess_board::can_white_queen_move(move m) { return false; }
 
@@ -98,7 +89,7 @@ bool chess_board::can_black_pawn_move(move m) {
     // move one square south
     if ((m.to == m.from - 8) && (pieces[m.to].type == piece_type::empty)) return true;
     // standard attack 
-    if (((m.to == m.from - 9) || (m.to == m.from - 7)) && (pieces[m.to].type != piece_type::empty)) return true; 
+    if (((m.to == m.from - 9) || (m.to == m.from - 7)) && (pieces[m.to].type != piece_type::empty) && (pieces[m.to].color != piece_color::black)) return true; 
     return false;
 }
 
@@ -106,15 +97,6 @@ bool chess_board::can_black_rook_move(move m) { return false; }
 bool chess_board::can_black_bishop_move(move m) { return false; }
 bool chess_board::can_black_knight_move(move m) { return false;}
 bool chess_board::can_black_king_move(move m) { 
-    // move north
-    if ((m.to == m.from + 8) && (pieces[m.to].color != piece_color::black)) return true;
-    // move south
-    if ((m.to == m.from - 8) && (pieces[m.to].color != piece_color::black)) return true;
-    // move east
-    if ((m.to == m.from + 1) && (pieces[m.to].color != piece_color::black)) return true;
-    // move west
-    if ((m.to == m.from - 1) && (pieces[m.to].color != piece_color::black)) return true;
-    return false;
  }
 bool chess_board::can_black_queen_move(move m) { return false; }
 
