@@ -73,6 +73,23 @@ bool chess_board::can_white_rook_move(move m) { return false;}
 bool chess_board::can_white_bishop_move(move m) { return false; }
 bool chess_board::can_white_knight_move(move m) { return false; }
 bool chess_board::can_white_king_move(move m) {
+    // move one square north
+    if ((m.to == m.from + 8) && ((pieces[m.to].color != piece_color::white) || (pieces[m.to].type == piece_type::empty))) return true;
+    // move one square south
+    if ((m.to == m.from - 8) && ((pieces[m.to].color != piece_color::white) || (pieces[m.to].type == piece_type::empty))) return true;
+    // move one square east
+    if ((m.to == m.from + 1) && ((pieces[m.to].color != piece_color::white) || (pieces[m.to].type == piece_type::empty))) return true;
+    // move one square west
+    if ((m.to == m.from - 1) && ((pieces[m.to].color != piece_color::white) || (pieces[m.to].type == piece_type::empty))) return true;
+    // move one square northeast
+    if ((m.to == m.from + 9) && ((pieces[m.to].color != piece_color::white) || (pieces[m.to].type == piece_type::empty))) return true;
+    // move one square northwest
+    if ((m.to == m.from + 7) && ((pieces[m.to].color != piece_color::white) || (pieces[m.to].type == piece_type::empty))) return true;
+    // move one square southeast
+    if ((m.to == m.from - 7) && ((pieces[m.to].color != piece_color::white) || (pieces[m.to].type == piece_type::empty))) return true;
+    // move one square southwest
+    if ((m.to == m.from - 9) && ((pieces[m.to].color != piece_color::white) || (pieces[m.to].type == piece_type::empty))) return true;
+    return false;
 }
 bool chess_board::can_white_queen_move(move m) { return false; }
 
@@ -97,6 +114,23 @@ bool chess_board::can_black_rook_move(move m) { return false; }
 bool chess_board::can_black_bishop_move(move m) { return false; }
 bool chess_board::can_black_knight_move(move m) { return false;}
 bool chess_board::can_black_king_move(move m) { 
+    // move one square north
+    if ((m.to == m.from + 8) && ((pieces[m.to].color != piece_color::black) || (pieces[m.to].type == piece_type::empty))) return true;
+    // move one square south
+    if ((m.to == m.from - 8) && ((pieces[m.to].color != piece_color::black) || (pieces[m.to].type == piece_type::empty))) return true;
+    // move one square east
+    if ((m.to == m.from + 1) && ((pieces[m.to].color != piece_color::black) || (pieces[m.to].type == piece_type::empty))) return true;
+    // move one square west
+    if ((m.to == m.from - 1) && ((pieces[m.to].color != piece_color::black) || (pieces[m.to].type == piece_type::empty))) return true;
+    // move one square northeast
+    if ((m.to == m.from + 9) && ((pieces[m.to].color != piece_color::black) || (pieces[m.to].type == piece_type::empty))) return true;
+    // move one square northwest
+    if ((m.to == m.from + 7) && ((pieces[m.to].color != piece_color::black) || (pieces[m.to].type == piece_type::empty))) return true;
+    // move one square southeast
+    if ((m.to == m.from - 7) && ((pieces[m.to].color != piece_color::black) || (pieces[m.to].type == piece_type::empty))) return true;
+    // move one square southwest
+    if ((m.to == m.from - 9) && ((pieces[m.to].color != piece_color::black) || (pieces[m.to].type == piece_type::empty))) return true;
+    return false;
  }
 bool chess_board::can_black_queen_move(move m) { return false; }
 
