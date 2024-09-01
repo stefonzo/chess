@@ -1,8 +1,8 @@
 #pragma once
 
-#include "piece.h"
 #include <bitset>
 #include <vector>
+#include <string>
 #include <stdint.h>
 
 #define NUM_SQUARES 64
@@ -90,15 +90,65 @@
 #define EAST +1
 #define WEST -1
 
-struct move {
-    int from, to;
+class chess_board;
+
+enum class piece_color {
+    white, black
+};
+
+enum class piece_type {
+    pawn, rook, knight, bishop, queen, king, empty
+};
+
+/*
+    Refactoring code, separating piece code from board code
+*/
+class pawn {
+    public:
+        piece_color color;
+        piece_type type;
+        bool move(chess_board *board);
+};
+
+class king {
+    public:
+        piece_color color;
+        piece_type type;
+        bool move(chess_board *board);
+};
+
+class queen {
+    public:
+        piece_color color;
+        piece_type type;
+        bool move(chess_board *board);
+};
+
+class bishop {
+    public:
+        piece_color color;
+        piece_type type;
+        bool move(chess_board *board);
+};
+
+class rook {
+    public:
+        piece_color color;
+        piece_type type;
+        bool move(chess_board *board);
+};
+
+class knight {
+    public:
+        piece_color color;
+        piece_type type;
+        bool move(chess_board *board);
 };
 
 struct player {
     std::string name;
     bool resigned, check, checkmate, draw, turn;
     piece_color color;
-    move player_move;
 };
 
 // this class will have to have all the information needed to represent the state of a chess game
@@ -117,46 +167,5 @@ class chess_board {
         // methods
         void init_chess_board(void);
 
-        // piece movement functions
-        bool can_white_pawn_move(move m);
-        bool can_white_rook_move(move m);
-        bool can_white_bishop_move(move m);
-        bool can_white_knight_move(move m);
-        bool can_white_king_move(move m);
-        bool can_white_queen_move(move m);
-
-        bool can_black_pawn_move(move m);
-        bool can_black_rook_move(move m);
-        bool can_black_bishop_move(move m);
-        bool can_black_knight_move(move m);
-        bool can_black_king_move(move m);
-        bool can_black_queen_move(move m);
-
-        bool check_move(move m);
-        std::vector<move> generate_moves(move m);
-        bool move_piece(move m);
-        unsigned get_turns(void);
-
         void print_board_info(void);
-
-        // square-centric board representation (array, mailbox)
-        chess_piece pieces[NUM_SQUARES];
-
-        // piece-centric board representation (bitset)
-        std::bitset<NUM_SQUARES> white_pawn;
-        std::bitset<NUM_SQUARES> white_rook;
-        std::bitset<NUM_SQUARES> white_knight;
-        std::bitset<NUM_SQUARES> white_bishop;
-        std::bitset<NUM_SQUARES> white_king;
-        std::bitset<NUM_SQUARES> white_queen;
-
-        std::bitset<NUM_SQUARES> black_pawn;
-        std::bitset<NUM_SQUARES> black_rook;
-        std::bitset<NUM_SQUARES> black_knight;
-        std::bitset<NUM_SQUARES> black_bishop;
-        std::bitset<NUM_SQUARES> black_king;
-        std::bitset<NUM_SQUARES> black_queen;
 };
-
-// methods for the chess_board
-unsigned get_index(unsigned rank, unsigned file);

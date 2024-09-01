@@ -450,23 +450,8 @@ game::~game() {
 // game input
 
 void game::get_player_move(void) { // need to update/fix this method!!! (It's currently getting squares mixed up which is causing major issues...)
-    //square_moves.push(get_square()); // get data for player moves (from and to squares)
-    if ((square_moves.empty() == true) || square_moves.size() == 1) square_moves.push(get_square());
-    if (square_moves.size() == 2) {
-        if (game_board.player_white.turn) {
-            game_board.player_white.player_move.from = square_moves.front();
-            square_moves.pop();
-            game_board.player_white.player_move.to = square_moves.front();
-            square_moves.pop();
-        printf("%d %d\n", game_board.player_white.player_move.from, game_board.player_white.player_move.to);
-        } else if (game_board.player_black.turn) {
-            game_board.player_black.player_move.from = square_moves.front();
-            square_moves.pop();
-            game_board.player_black.player_move.to = square_moves.front();
-            square_moves.pop();
-            printf("%d %d\n", game_board.player_black.player_move.from, game_board.player_black.player_move.to);
-        }
-    }
+//square_moves.push(get_square()); // get data for player moves (from and to squares)
+  
 }
 
 void game::mouse_event(SDL_Event *e) {
@@ -566,15 +551,6 @@ void game::update_splash_screen(double dt) {
 
 void game::update_game(void) {
     game_board.print_board_info();
-    if (game_board.player_white.turn) {
-        printf("White's turn.\n");
-        printf("%d %d\n", game_board.player_white.player_move.from, game_board.player_white.player_move.to);
-        game_board.move_piece(game_board.player_white.player_move);
-    } else if (game_board.player_black.turn) {
-        printf("Black's turn.\n");
-        printf("%d %d\n", game_board.player_black.player_move.from, game_board.player_black.player_move.to);
-        game_board.move_piece(game_board.player_black.player_move);
-    }
 }
 
 /*
@@ -628,66 +604,7 @@ void game::render_board(void) {
 
 void game::render_pieces(void) {
     for (unsigned square = a1; square <= h8; square++) {
-        // white pieces
-        if (game_board.pieces[square].type != piece_type::empty) {
-                switch (game_board.pieces[square].color) {
-                    case piece_color::white:
-                        switch(game_board.pieces[square].type) {
-                            case piece_type::pawn:
-                                SDL_RenderCopy(game_renderer, game_texture_manager->get_texture("white_pawn"), NULL, &square_coords[square]);
-                            break;
-
-                            case piece_type::rook:
-                                SDL_RenderCopy(game_renderer, game_texture_manager->get_texture("white_rook"), NULL, &square_coords[square]);
-                            break;
-
-                            case piece_type::knight:
-                                SDL_RenderCopy(game_renderer, game_texture_manager->get_texture("white_knight"), NULL, &square_coords[square]);
-                            break;
-
-                            case piece_type::bishop:
-                                SDL_RenderCopy(game_renderer, game_texture_manager->get_texture("white_bishop"), NULL, &square_coords[square]);
-                            break;
-
-                            case piece_type::king:
-                                SDL_RenderCopy(game_renderer, game_texture_manager->get_texture("white_king"), NULL, &square_coords[square]);
-                            break;
-
-                            case piece_type::queen:
-                                SDL_RenderCopy(game_renderer, game_texture_manager->get_texture("white_queen"), NULL, &square_coords[square]);
-                            break;
-                        }
-                    break;
-
-                    case piece_color::black:
-                        switch(game_board.pieces[square].type) {
-                            case piece_type::pawn:
-                                SDL_RenderCopy(game_renderer, game_texture_manager->get_texture("black_pawn"), NULL, &square_coords[square]);
-                            break;
-
-                            case piece_type::rook:
-                                SDL_RenderCopy(game_renderer, game_texture_manager->get_texture("black_rook"), NULL, &square_coords[square]);
-                            break;
-
-                            case piece_type::knight:
-                                SDL_RenderCopy(game_renderer, game_texture_manager->get_texture("black_knight"), NULL, &square_coords[square]);
-                            break;
-
-                            case piece_type::bishop:
-                                SDL_RenderCopy(game_renderer, game_texture_manager->get_texture("black_bishop"), NULL, &square_coords[square]);
-                            break;
-
-                            case piece_type::king:
-                                SDL_RenderCopy(game_renderer, game_texture_manager->get_texture("black_king"), NULL, &square_coords[square]);
-                            break;
-
-                            case piece_type::queen:
-                                SDL_RenderCopy(game_renderer, game_texture_manager->get_texture("black_queen"), NULL, &square_coords[square]);
-                            break;
-                        }
-                    break;
-                }
-        } 
+        
     }
 }
 

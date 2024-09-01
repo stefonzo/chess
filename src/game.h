@@ -10,7 +10,7 @@
 #include <memory>
 #include <unordered_map>
 #include <chrono>
-#include "board.h"
+#include "chess.h"
 
 #define FPS 60
 #define FRAME_DELAY 1000 / FPS
