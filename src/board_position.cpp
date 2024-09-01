@@ -1,4 +1,4 @@
-#include "board.h"
+#include "chess.h"
 #include <ostream>
 #include <string>
 
