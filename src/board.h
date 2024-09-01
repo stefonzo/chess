@@ -4,8 +4,30 @@
 #include <bitset>
 #include <vector>
 #include <stdint.h>
+#include <ostream>
+#include <string>
 
 #define NUM_SQUARES 64
+
+
+#define A 0
+#define B 1
+#define C 2
+#define D 3
+#define E 4
+#define F 5
+#define G 6
+#define H 7
+
+struct board_position_t {
+	int row;
+	int col;
+	board_position_t(size_t index);
+	size_t index();
+	std::string colName();
+};
+std::ostream& operator<<(std::ostream &outs, board_position_t p);
+
 
 // used for board indexing
 #define a1 0 
